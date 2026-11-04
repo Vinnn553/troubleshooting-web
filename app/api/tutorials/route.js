@@ -7,7 +7,7 @@ import fs from "fs/promises";
 // GET: Ambil semua data tutorial dari database
 export async function GET() {
   try {
-    const { data: rows } = await supabase.from('tutorial_list').select('*').order('id', { ascending: false })
+    const { data: rows, error } = await supabase.from('tutorial_list').select('*').order('id', { ascending: false })
     // const [rows] = await supabase.from("SELECT * FROM `tutorial-list` ORDER BY id DESC");
     return NextResponse.json(rows || []);
   } catch (error) {
@@ -58,10 +58,8 @@ export async function POST(request) {
       imageUrl: String(imageUrl).trim(),
     });
 
-    const [result] = await supabase.from(
-      "INSERT INTO `tutorial-list` (title, kategori, level, langkah, suka, tidak_suka) VALUES (?, ?, ?, ?, 0, 0)",
-      [title, kategori, level, langkahData]
-    );
+    const { data: result, error } = await supabase.from('tutorial_list')
+                            .insert([{ title: title, kategori: kategori, level: level, langkah: langkahData, suka: 0, tidak_suka: 0 }]);
 
     return NextResponse.json({
       success: true,
