@@ -3,27 +3,33 @@ import Footer from "./components/Footer";
 import HeroSection from "./home/HeroSection";
 import CategorySection from "./home/CategorySection";
 import TutorialList from "./home/TutorialList";
-import pool from "@/lib/db"
 import { Suspense } from "react";
+import Loading from "./home/Loading";
+import { supabase } from "@/lib/supabase";
 
+export const instant = false;
 
 export default async function Home() {
-  // let tutorials = [];
-  'use cache'
+  // Ambil data tutorial dari Supabase
+  const { data: tutorials, error } = await supabase
+    .from('tutorial_list')
+    .select('*')
+    .order('id', { ascending: false });
 
-  const result = await pool.query('SELECT * FROM "tutorialList" ORDER BY id ASC');
-  const tutorials = result.rows;
+  if (error) {
+    console.error("Gagal mengambil data dari Supabase:", error);
+  }
 
   return (
     <div>
       <Header />
       <HeroSection />
       <CategorySection />
-      <Suspense>
-        <TutorialList initialTutorials={tutorials} />
+      <Suspense fallback={<Loading />}>
+        <TutorialList initialTutorials={tutorials || []} />
       </Suspense>
       
       <Footer />
-    </div >
-  )
+    </div>
+  );
 }

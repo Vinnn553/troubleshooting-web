@@ -21,11 +21,11 @@ export default function TutorialList({ initialTutorials = []}) {
                             Pilih kategori kendala yang sedang Anda hadapi untuk melihat panduan perbaikannya secara sistematis.
                         </p>
                     </div>
-                    <div className="card-group flex flex-wrap gap-4 justify-between">
+                    <div className="card-group flex flex-wrap gap-4">
                         {dataToDisplay.map((item => (
                             <article key={item.id} onClick={() => setSelectedTutorial(item)} className="card-list p-3 bg-white border-gray-300 rounded-2xl w-85 h-[200px] shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between cursor-pointer">
                             <div className="card-data flex flex-col">
-                                <h3 className="nama_kategori text-[.8rem] font-semibold text-[#42a6f8] bg-[#E8F5E9] w-30 rounded-full text-center p-0.5 w-20 mb-3">{item.kategori}</h3>
+                                <h3 className="nama_kategori text-[.8rem] font-semibold text-[#42a6f8] bg-[#E8F5E9] rounded-full text-center p-0.5 w-30 mb-3">{item.kategori}</h3>
                                 <h2 className="nama_masalah text-2xl font-semibold">{item.title}</h2>
                             </div>
                             <div className="level flex gap-1.5">
