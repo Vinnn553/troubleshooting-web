@@ -18,6 +18,7 @@ export default function LoginForm() {
         const result = await signIn('credentials', {
             email,
             password,
+            callbackUrl: `${window.location.origin}/dashboard`,
             redirect: false, // Jangan biarkan NextAuth me-redirect otomatis
         });
 
