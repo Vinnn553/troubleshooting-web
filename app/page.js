@@ -8,6 +8,9 @@ import Loading from "./home/Loading";
 import { supabase } from "@/lib/supabase";
 
 export const instant = false;
+// app/page.tsx
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export default async function Home() {
   // Ambil data tutorial dari Supabase
