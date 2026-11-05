@@ -23,6 +23,16 @@ Server lokal tersedia di `http://localhost:3000`.
 
 Aplikasi memakai rendering server, Route Handlers, autentikasi, dan upload, sehingga harus dideploy sebagai **Cloudflare Worker**, bukan Cloudflare Pages static export.
 
+### Pengaturan CI/CD Cloudflare
+
+Jika repository terhubung ke Cloudflare Workers Builds, gunakan:
+
+- **Build command:** `npm run build:worker`
+- **Deploy command:** `npx wrangler deploy`
+- **Root directory:** direktori proyek yang berisi `package.json` dan `wrangler.jsonc`
+
+Jangan gunakan `npm run build` sebagai build command CI: perintah itu hanya menjalankan `next build` dan tidak membuat output adapter `.open-next/` yang diperlukan oleh deploy. `npm run build:worker` menjalankan build Next.js sekaligus menghasilkan bundle Worker OpenNext.
+
 1. Buat bucket R2 bernama `web-troubleshoot-nextjs-open-next-cache` (atau ubah `bucket_name` di `wrangler.jsonc`).
 2. Siapkan Worker dengan nama `web-troubleshoot-nextjs`, sesuai nilai `name` dan self-reference service di `wrangler.jsonc`.
 3. Untuk `npm run preview:worker`, buat `.dev.vars` di root proyek dengan variabel yang sama. `.dev.vars` dipakai Wrangler saat Worker lokal berjalan; `.env.local` dipakai Next.js saat development dan build. Keduanya tidak boleh di-commit.
