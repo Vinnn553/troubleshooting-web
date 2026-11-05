@@ -11,7 +11,7 @@
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
-      "service": "web-troubleshoot-nextjs"
+      "service": "troubleshooting-web"
     }
   ],
   "r2_buckets": [

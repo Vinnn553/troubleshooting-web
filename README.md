@@ -34,7 +34,7 @@ Jika repository terhubung ke Cloudflare Workers Builds, gunakan:
 Jangan gunakan `npm run build` sebagai build command CI: perintah itu hanya menjalankan `next build` dan tidak membuat output adapter `.open-next/` yang diperlukan oleh deploy. `npm run build:worker` menjalankan build Next.js sekaligus menghasilkan bundle Worker OpenNext.
 
 1. Buat bucket R2 bernama `web-troubleshoot-nextjs-open-next-cache` (atau ubah `bucket_name` di `wrangler.jsonc`).
-2. Siapkan Worker dengan nama `web-troubleshoot-nextjs`, sesuai nilai `name` dan self-reference service di `wrangler.jsonc`.
+2. Siapkan Worker dengan nama `troubleshooting-web`, sesuai nilai `name` dan self-reference service di `wrangler.jsonc`.
 3. Untuk `npm run preview:worker`, buat `.dev.vars` di root proyek dengan variabel yang sama. `.dev.vars` dipakai Wrangler saat Worker lokal berjalan; `.env.local` dipakai Next.js saat development dan build. Keduanya tidak boleh di-commit.
 4. Tambahkan variabel dan secrets di Cloudflare Worker Settings → Variables and Secrets. Variabel `NEXT_PUBLIC_*` harus tersedia di environment build Cloudflare karena nilainya dimasukkan ke bundle browser.
 5. Pastikan project Supabase memiliki bucket Storage `tutorial-images` yang dapat dibaca publik, dan kebijakan RLS tabel `tutorial_list` mengizinkan pembacaan tutorial publik.
@@ -64,6 +64,6 @@ Untuk Next.js dev/build lokal, simpan nilai di `.env.local`. Untuk preview Worke
 | `SUPABASE_SERVICE_ROLE_KEY` | **Secret** | Operasi API admin dan Storage; jangan expose ke browser |
 | `SUPABASE_STORAGE_BUCKET` | Variable (opsional) | Nama bucket gambar; default `tutorial-images` |
 | `NEXTAUTH_SECRET` | **Secret** | Penandatanganan sesi NextAuth |
-| `NEXTAUTH_URL` | Variable | URL Worker publik, misalnya `https://web-troubleshoot-nextjs.<akun>.workers.dev` |
+| `NEXTAUTH_URL` | Variable | URL Worker publik, misalnya `https://troubleshooting-web.<akun>.workers.dev` |
 
 Upload screenshot dibatasi hingga 5 MB dan menerima JPEG, PNG, WebP, atau GIF. Berkas baru disimpan di Supabase Storage, bukan filesystem Worker.

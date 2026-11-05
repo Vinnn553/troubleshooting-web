@@ -10,7 +10,7 @@ Dokumen ini adalah basis data pengetahuan permanen untuk asisten AI (Antigravity
 - **Library Inti**: React 19.3.1, React DOM 19.3.1
 - **Autentikasi**: NextAuth v4 (`next-auth@^4.24.15`), `bcryptjs`, JWT strategy dengan idle timer watcher (3 menit inaktivitas).
 - **Database**: Supabase PostgreSQL menggunakan `@supabase/supabase-js`.
-- **Deploy**: OpenNext + Cloudflare Workers (`open-next.config.ts`, `wrangler.jsonc`); bukan Cloudflare Pages.
+- **Deploy**: OpenNext + Cloudflare Workers (`open-next.config.ts`, `wrangler.jsonc`, Worker bernama `troubleshooting-web`); bukan Cloudflare Pages.
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`), Remix Icon (`remixicon`), Lucide Icons (`lucide-react`), Anime.js (`animejs` v4).
 - **Fitur Khusus Next.js 16**:
   - Webpack digunakan untuk build Next.js (`next.config.mjs` dan npm scripts)
