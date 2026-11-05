@@ -7,6 +7,8 @@ import { Suspense } from "react";
 import Loading from "./home/Loading";
 import { supabase } from "@/lib/supabase";
 
+export const instant = false;
+
 export default async function Home() {
   // Ambil data tutorial dari Supabase dengan aman
   let tutorials = [];
