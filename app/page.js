@@ -6,22 +6,21 @@ import TutorialList from "./home/TutorialList";
 import { Suspense } from "react";
 import Loading from "./home/Loading";
 import { supabase } from "@/lib/supabase";
-import { connection } from "next/server";
-
-export const instant = false;
 
 export default async function Home() {
+  // Ambil data tutorial dari Supabase dengan aman
+  let tutorials = [];
+  try {
+    const { data, error } = await supabase
+      .from('tutorial_list')
+      .select('*')
+      .order('id', { ascending: false });
 
-  await connection();
-
-  // Ambil data tutorial dari Supabase
-  const { data: tutorials, error } = await supabase
-    .from('tutorial_list')
-    .select('*')
-    .order('id', { ascending: false });
-
-  if (error) {
-    console.error("Gagal mengambil data dari Supabase:", error);
+    if (!error && data) {
+      tutorials = data;
+    }
+  } catch (err) {
+    console.error("Gagal terhubung ke Supabase:", err);
   }
 
   return (
@@ -30,9 +29,8 @@ export default async function Home() {
       <HeroSection />
       <CategorySection />
       <Suspense fallback={<Loading />}>
-        <TutorialList initialTutorials={tutorials || []} />
+        <TutorialList initialTutorials={tutorials} />
       </Suspense>
-      
       <Footer />
     </div>
   );
