@@ -7,32 +7,27 @@ import { Suspense } from "react";
 import Loading from "./home/Loading";
 import { supabase } from "@/lib/supabase";
 
-// export const instant = false;
-export const dynamic = 'force-dynamic';
-
-export default async function Home() {
-  // Ambil data tutorial dari Supabase dengan aman
-  let tutorials = [];
-  try {
-    const { data, error } = await supabase
+async function TutorialDb() {
+  const { data, error } = await supabase
       .from('tutorial_list')
       .select('*')
       .order('id', { ascending: false });
 
-    if (!error && data) {
-      tutorials = data;
-    }
-  } catch (err) {
-    console.error("Gagal terhubung ke Supabase:", err);
+  if (error) {
+    console.error("Data tidak tersedia");
+    return <TutorialList initialTutorials={[]} />;
   }
+  return <TutorialList initialTutorials={data ?? []} />;
+}
 
+export default function Home() {
   return (
     <div>
       <Header />
       <HeroSection />
       <CategorySection />
       <Suspense fallback={<Loading />}>
-        <TutorialList initialTutorials={tutorials} />
+        <TutorialDb />
       </Suspense>
       <Footer />
     </div>
