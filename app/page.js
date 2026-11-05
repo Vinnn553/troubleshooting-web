@@ -6,12 +6,14 @@ import TutorialList from "./home/TutorialList";
 import { Suspense } from "react";
 import Loading from "./home/Loading";
 import { supabase } from "@/lib/supabase";
+import { connection } from "next/server";
 
 export const instant = false;
-// app/page.tsx
-export const dynamic = 'force-dynamic'
 
 export default async function Home() {
+
+  await connection();
+
   // Ambil data tutorial dari Supabase
   const { data: tutorials, error } = await supabase
     .from('tutorial_list')
