@@ -1,7 +1,7 @@
 'use client';
 
 import { SessionProvider, useSession, signOut } from "next-auth/react";
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 
 // Komponen pengawas inaktivitas
 function IdleTimerWatcher({ timeoutMinutes = 3 }) {
@@ -57,8 +57,10 @@ function IdleTimerWatcher({ timeoutMinutes = 3 }) {
 export default function AuthProvider({ children }) {
   return (
     <SessionProvider>
+      <Suspense>
       <IdleTimerWatcher timeoutMinutes={3} />
       {children}
+      </Suspense>
     </SessionProvider>
   );
 }
