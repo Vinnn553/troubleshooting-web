@@ -1,5 +1,9 @@
-import withAuth from "next-auth/middleware";
+import nextAuthMiddleware from "next-auth/middleware";
 
+const withAuth =
+  typeof nextAuthMiddleware === "function"
+    ? nextAuthMiddleware
+    : nextAuthMiddleware.default;
 const authMiddleware = withAuth({
   secret: process.env.NEXTAUTH_SECRET,
 });

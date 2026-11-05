@@ -1,20 +1,16 @@
-export default async function TutorialDb() {
-    // Ambil data tutorial dari Supabase dengan aman
-      let tutorials = [];
-      try {
-        const { data, error } = await supabase
-          .from('tutorial_list')
-          .select('*')
-          .order('id', { ascending: false });
-    
-        if (!error && data) {
-          tutorials = data;
-        }
-      } catch (err) {
-        console.error("Gagal terhubung ke Supabase:", err);
-      }
+import { getSupabase } from "@/lib/supabase";
+import TutorialList from "./TutorialList";
 
-      return {
-        
-      }
+export default async function TutorialDb() {
+  const { data, error } = await getSupabase()
+    .from("tutorial_list")
+    .select("*")
+    .order("id", { ascending: false });
+
+  if (error) {
+    console.error("Gagal mengambil tutorial dari Supabase:", error);
+    return <TutorialList initialTutorials={[]} />;
+  }
+
+  return <TutorialList initialTutorials={data ?? []} />;
 }

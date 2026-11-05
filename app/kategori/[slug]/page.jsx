@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import { Suspense } from "react";
 import KategoriList from "./KategoriList";
 import Loading from "./loading";
@@ -40,7 +40,7 @@ export default async function KategoriPage({ params }) {
         setTimeout(resolve, 2000)
     })
 
-    const { data: tutorials, error } = await supabase.from('tutorial_list')
+    const { data: tutorials, error } = await getSupabase().from('tutorial_list')
         .select('*')
         .eq('kategori', namaKategori).order('id', { ascending: false })
 

@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Troubleshooting Web
 
-## Getting Started
+Portal tutorial troubleshooting berbasis Next.js App Router, Supabase, dan OpenNext untuk Cloudflare Workers.
 
-First, run the development server:
+## Pengembangan lokal
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. Pasang dependensi:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+   ```bash
+   npm ci
+   ```
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+2. Buat `.env.local` untuk Next.js dan isi variabel yang tercantum di bagian konfigurasi.
+3. Jalankan server:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```bash
+   npm run dev
+   ```
 
-## Learn More
+Server lokal tersedia di `http://localhost:3000`.
 
-To learn more about Next.js, take a look at the following resources:
+## Deploy ke Cloudflare Workers
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Aplikasi memakai rendering server, Route Handlers, autentikasi, dan upload, sehingga harus dideploy sebagai **Cloudflare Worker**, bukan Cloudflare Pages static export.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Buat bucket R2 bernama `web-troubleshoot-nextjs-open-next-cache` (atau ubah `bucket_name` di `wrangler.jsonc`).
+2. Siapkan Worker dengan nama `web-troubleshoot-nextjs`, sesuai nilai `name` dan self-reference service di `wrangler.jsonc`.
+3. Untuk `npm run preview:worker`, buat `.dev.vars` di root proyek dengan variabel yang sama. `.dev.vars` dipakai Wrangler saat Worker lokal berjalan; `.env.local` dipakai Next.js saat development dan build. Keduanya tidak boleh di-commit.
+4. Tambahkan variabel dan secrets di Cloudflare Worker Settings → Variables and Secrets. Variabel `NEXT_PUBLIC_*` harus tersedia di environment build Cloudflare karena nilainya dimasukkan ke bundle browser.
+5. Pastikan project Supabase memiliki bucket Storage `tutorial-images` yang dapat dibaca publik, dan kebijakan RLS tabel `tutorial_list` mengizinkan pembacaan tutorial publik.
+6. Uji sebelum deploy:
 
-## Deploy on Vercel
+   ```bash
+   npm run build:worker
+   npm run preview:worker
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+7. Deploy setelah seluruh konfigurasi sudah siap:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```bash
+   npm run deploy
+   ```
+
+Jangan gunakan konfigurasi build Cloudflare Pages seperti `npx next build` dan direktori output statis `out`; OpenNext menghasilkan Worker dan asset di `.open-next/`.
+
+### Variabel dan secrets
+
+Untuk Next.js dev/build lokal, simpan nilai di `.env.local`. Untuk preview Worker lokal, isi `.dev.vars` dengan nama dan nilai yang sama. Untuk production, atur di Cloudflare Worker Settings → Variables and Secrets.
+
+| Nama | Jenis | Kegunaan |
+| --- | --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Variable | URL project Supabase |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` atau `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Variable | Key publik Supabase |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Secret** | Operasi API admin dan Storage; jangan expose ke browser |
+| `SUPABASE_STORAGE_BUCKET` | Variable (opsional) | Nama bucket gambar; default `tutorial-images` |
+| `NEXTAUTH_SECRET` | **Secret** | Penandatanganan sesi NextAuth |
+| `NEXTAUTH_URL` | Variable | URL Worker publik, misalnya `https://web-troubleshoot-nextjs.<akun>.workers.dev` |
+
+Upload screenshot dibatasi hingga 5 MB dan menerima JPEG, PNG, WebP, atau GIF. Berkas baru disimpan di Supabase Storage, bukan filesystem Worker.

@@ -73,7 +73,7 @@ export default function TutorialDashboardPage() {
     }
   };
 
-  // 1. Fetch data dari Database MySQL via API
+  // Ambil data tutorial melalui API
   const refreshTutorials = async () => {
     try {
       setLoading(true);
@@ -544,7 +544,7 @@ export default function TutorialDashboardPage() {
                     <span>{existingImageUrl || imageFile ? 'Ganti File Gambar' : 'Pilih Foto Screenshot'}</span>
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
                       onChange={handleImageChange}
                       className="hidden"
                     />

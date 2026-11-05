@@ -1,15 +1,16 @@
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 
 export default async function Statistik() {
-  let totalTutorial = 0;
+  const { count, error } = await getSupabase()
+    .from('tutorial_list')
+    .select('*', { count: 'exact', head: true });
 
-  try {
-    const { count } = await supabase.from('tutorial_list').select('*', { count: 'exact', head: true });
-    // const [rows] = await supabase.from("SELECT COUNT(*) AS total FROM `tutorial-list`");
-    totalTutorial = count || 0;
-  } catch (error) {
+  if (error) {
     console.error("Gagal mengambil data statistik:", error);
+    throw error;
   }
+
+  const totalTutorial = count ?? 0;
 
   return (
     <div>

@@ -1,7 +1,6 @@
 import NextAuth from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { supabase, getServiceSupabase } from "@/lib/supabase"; // Gunakan client supabase
+import { getServiceSupabase } from "@/lib/supabase";
 
 export const authOptions = {
   session: {
@@ -11,7 +10,9 @@ export const authOptions = {
     signIn: "/login",
   },
   providers: [
-    CredentialsProvider({
+    {
+      id: "credentials",
+      type: "credentials",
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
@@ -65,7 +66,7 @@ export const authOptions = {
           return null;
         }
       },
-    }),
+    },
   ],
   callbacks: {
     async jwt({ token, user }) {
@@ -86,5 +87,7 @@ export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 };
 
-const handler = NextAuth(authOptions);
+const createNextAuthHandler =
+  typeof NextAuth === "function" ? NextAuth : NextAuth.default;
+const handler = createNextAuthHandler(authOptions);
 export { handler as GET, handler as POST };

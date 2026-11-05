@@ -6,13 +6,14 @@ Dokumen ini adalah basis data pengetahuan permanen untuk asisten AI (Antigravity
 
 ## 1. Ringkasan Proyek & Tech Stack
 - **Nama Proyek**: testing
-- **Framework**: Next.js 16.4.3 (App Router)
-- **Library Inti**: React 19.3.0, React DOM 19.3.0
+- **Framework**: Next.js 16.4.5 (App Router)
+- **Library Inti**: React 19.3.1, React DOM 19.3.1
 - **Autentikasi**: NextAuth v4 (`next-auth@^4.24.15`), `bcryptjs`, JWT strategy dengan idle timer watcher (3 menit inaktivitas).
-- **Database**: **MySQL** menggunakan `mysql2/promise` (Singleton Connection Pool di `lib/db.js`).
-- **Styling**: Tailwind CSS v4 (`@tailwindcss/turbopack`), Remix Icon (`remixicon`), Lucide Icons (`lucide-react`), Anime.js (`animejs` v4).
+- **Database**: Supabase PostgreSQL menggunakan `@supabase/supabase-js`.
+- **Deploy**: OpenNext + Cloudflare Workers (`open-next.config.ts`, `wrangler.jsonc`); bukan Cloudflare Pages.
+- **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`), Remix Icon (`remixicon`), Lucide Icons (`lucide-react`), Anime.js (`animejs` v4).
 - **Fitur Khusus Next.js 16**:
-  - Turbopack aktif (`next.config.mjs`)
+  - Webpack digunakan untuk build Next.js (`next.config.mjs` dan npm scripts)
   - React Compiler aktif (`babel-plugin-react-compiler@1.0.0`)
   - Cache Components & Partial Prefetching (PPR) aktif
   - Middleware conventions: file bernama `proxy.js` (pengganti `middleware.js` lama)
@@ -21,11 +22,11 @@ Dokumen ini adalah basis data pengetahuan permanen untuk asisten AI (Antigravity
 
 ---
 
-## 2. Skema & Struktur Database (MySQL)
+## 2. Skema & Struktur Database (Supabase)
 
-Koneksi database dikelola melalui `lib/db.js` menggunakan variabel lingkungan `.env` (`DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `DB_PORT`).
+Client Supabase publik dan service-role dibuat secara lazy melalui `lib/supabase.js`. URL dan public key memakai `NEXT_PUBLIC_SUPABASE_URL` serta `NEXT_PUBLIC_SUPABASE_ANON_KEY` (atau `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`); operasi admin server memerlukan `SUPABASE_SERVICE_ROLE_KEY`.
 
-### Tabel: `tutorial-list`
+### Tabel: `tutorial_list`
 | Kolom | Tipe Data | Keterangan |
 | :--- | :--- | :--- |
 | `id` | `INT` (Primary Key, Auto Increment) | ID unik tutorial |
@@ -50,15 +51,17 @@ Koneksi database dikelola melalui `lib/db.js` menggunakan variabel lingkungan `.
 
 ```text
 testing/
-├── .env                       # Variabel lingkungan (DB_*, NEXTAUTH_SECRET, NEXTAUTH_URL)
-├── .env.local                 # Variabel lingkungan lokal (Supabase NEXT_PUBLIC_SUPABASE_*)
+├── .env.local                 # Variabel lingkungan lokal Supabase dan NextAuth
+├── .dev.vars                  # Variabel runtime Wrangler lokal (diabaikan Git)
 ├── AGENTS.md                  # Aturan & instruksi agen sistem
 ├── GEMINI.md                  # Knowledge base permanen arsitektur dan peta proyek ini
 ├── eslint.config.mjs          # Konfigurasi linter ESLint
 ├── jsconfig.json              # Konfigurasi alias path (@/* -> ./*)
-├── proxy.js                   # Proxy/Middleware Next.js 16 (proteksi rute /dashboard, /tutorialDashboard)
-├── next.config.mjs            # Konfigurasi Next.js (turbopack, cacheComponents, partialPrefetching)
-├── package.json               # Daftar dependensi & npm scripts
+├── proxy.js                   # Proxy/Middleware Next.js 16 (proteksi rute admin)
+├── next.config.mjs            # Konfigurasi kompatibilitas Next.js
+├── open-next.config.ts        # Adapter OpenNext dan cache ISR berbasis R2
+├── wrangler.jsonc             # Worker, asset, self-reference, R2, dan Images bindings
+├── package.json               # Scripts Next.js/OpenNext untuk dev, build, dan deploy
 ├── package-lock.json          # Dependency lockfile
 ├── README.md                  # Dokumentasi umum repositori
 │
@@ -66,10 +69,12 @@ testing/
 │   └── tutorial.json          # Basis data konten cadangan/mock tutorial
 │
 ├── lib/                       # Utilitas backend & koneksi server-only
-│   ├── db.js                  # MySQL Connection Pool (mysql2/promise, Singleton)
-│   └── supabase.js            # Supabase Client SDK (@supabase/supabase-js)
+│   ├── api-auth.js            # Validasi token NextAuth untuk API admin
+│   ├── supabase.js            # Lazy Supabase public/service-role clients
+│   └── tutorial-images.js     # Upload dan penghapusan gambar Supabase Storage
 │
 ├── public/                    # Aset statis publik (dapat diakses via URL /...)
+│   ├── _headers               # Cache-Control untuk asset statis Next.js
 │   ├── file.svg
 │   ├── globe.svg
 │   ├── next.svg
@@ -77,7 +82,12 @@ testing/
 │   ├── window.svg
 │   ├── img/
 │   │   └── Illustration.svg   # Ilustrasi vektor perangkat laptop untuk HeroSection
-│   └── uploads/               # Direktori penyimpanan file screenshot tutorial yang diunggah
+│   └── uploads/               # Aset screenshot lama (upload baru memakai Supabase Storage)
+├── open-next.config.ts        # Konfigurasi OpenNext Cloudflare
+├── wrangler.jsonc             # Konfigurasi deployment Cloudflare Worker
+├── worker-configuration.d.ts  # Tipe binding Worker yang dibuat oleh Wrangler
+├── .wrangler/                 # Cache lokal Wrangler (diabaikan Git)
+├── .wrangler/                 # Cache lokal Wrangler (diabaikan Git)
 │
 └── app/                       # Direktori utama Next.js App Router
     ├── favicon.ico            # Favicon situs
@@ -89,7 +99,7 @@ testing/
     │   ├── layout.jsx         # Layout admin panel (Sidebar kiri + Konten utama kanan)
     │   ├── dashboard/         # Halaman Dashboard Ringkasan
     │   │   ├── page.jsx       # Server Component dashboard overview (Suspense streaming)
-    │   │   ├── Statistik.jsx  # Server Component query COUNT tutorial langsung ke MySQL
+    │   │   ├── Statistik.jsx  # Server Component query COUNT tutorial ke Supabase
     │   │   └── UserGreeting.jsx# Client Component sapaan nama user dari useSession()
     │   └── tutorialDashboard/ # Halaman Manajemen Tutorial Troubleshooting
     │       └── page.jsx       # Client Component CRUD lengkap (fetch API, tabel, modal tambah, edit & preview)
@@ -99,27 +109,28 @@ testing/
     │       ├── page.jsx       # Server Component wrapper halaman login
     │       └── LoginForm.jsx  # Client Component form login berbasis NextAuth credentials
     │
-    ├── api/                   # API Routes (Serverless Node.js endpoints)
+    ├── api/                   # Route Handlers yang dijalankan pada Cloudflare Workers
     │   ├── auth/
     │   │   └── [...nextauth]/
-    │   │       └── route.js   # Konfigurasi NextAuth v4 handler (Credentials, MySQL query, JWT session)
+    │   │       └── route.js   # Konfigurasi NextAuth v4 handler (Credentials, Supabase, JWT session)
     │   └── tutorials/
-    │       ├── route.js       # GET all tutorials & POST upload screenshot + simpan langkah JSON
+    │       ├── route.js       # API tutorial; operasi dibatasi sesi admin
     │       └── [id]/
-    │           └── route.js   # GET detail, PUT update tutorial (screenshot & JSON), DELETE tutorial by ID
+    │           └── route.js   # GET/PUT/DELETE tutorial dan pengelolaan gambar Storage
     │
     ├── components/            # Komponen UI global & reusable
     │   ├── AuthProvider.jsx   # Client wrapper SessionProvider + IdleTimerWatcher (auto logout 3 menit)
     │   ├── Header.jsx         # Navbar atas (sticky, logo Dekoruma, search input interaktif)
     │   ├── Footer.jsx         # Footer bawah (copyright dengan getYear cached via 'use cache')
     │   ├── Modal.jsx          # Modal popup solusi (Terminal CMD background hitam & screenshot view)
-    │   ├── Search.js          # Server Action pencarian tutorial dengan operator LIKE MySQL
+    │   ├── Search.js          # Server Action pencarian tutorial melalui Supabase
     │   └── Sidebar.jsx        # Sidebar navigasi admin panel (collapsible, route highlighting, logout)
     │
     └── home/                  # Komponen seksi khusus halaman Beranda (app/page.js)
         ├── HeroSection.jsx    # Hero banner utama dengan animasi teks anime.js (SplitText & Timeline)
         ├── CategorySection.jsx# Katalog kartu 4 kategori troubleshooting komputer
         ├── Loading.jsx        # Fallback loading skeleton untuk Suspense
+        ├── TutorialDB.jsx    # Server Component query Supabase di dalam batas Suspense beranda
         └── TutorialList.jsx   # Client component daftar kartu tutorial & trigger pop-up Modal solusi
 ```
 
@@ -128,10 +139,9 @@ testing/
 ## 4. Rincian Arsitektur & Tanggung Jawab Komponen
 
 ### A. Batasan Server vs Client Component (Aturan Kritis)
-1. **Node.js Modules (`mysql2`, `fs`, `path`, `net`)**:
-   - `lib/db.js` dan pustaka Node.js lainnya **TIDAK BOLEH** diimpor ke dalam Client Component (`'use client'`).
-   - Melanggar aturan ini akan memicu error bundling Turbopack: `Module not found: Can't resolve 'net'`.
-   - Client Component yang membutuhkan data database wajib memanggilnya melalui Route Handlers (`/api/...`) atau Server Actions (`'use server'`).
+1. **Server-only secrets**:
+   - `SUPABASE_SERVICE_ROLE_KEY` hanya digunakan dari API/server dan tidak boleh diberi awalan `NEXT_PUBLIC_` atau dikirim ke Client Component.
+   - Operasi CRUD API memeriksa token NextAuth; upload screenshot disimpan ke bucket Supabase Storage, bukan filesystem Worker.
 2. **Prerendering & Dynamic Data (`cacheComponents` / PPR)**:
    - Di Next.js 16 dengan `cacheComponents: true`, pemanggilan data dinamis di Server Component (seperti query database `Statistik.jsx`) harus dibungkus dengan `<Suspense fallback={...}>` agar tidak menghalangi prerender static shell (*Blocking Route*).
    - Informasi sesi user client-side diisolasi ke dalam sub-komponen Client (`UserGreeting.jsx` menggunakan `useSession()`), sehingga parent page (`dashboard/page.jsx`) tetap beroperasi sebagai Server Component murni.
@@ -143,7 +153,7 @@ testing/
    - `proxy.js` menyaring setiap request ke `/dashboard/:path*` dan `/tutorialDashboard/:path*`. Pengguna tanpa token sesi akan dialihkan ke `/login`.
    - `AuthProvider.jsx` memantau interaksi pengguna (`mousemove`, `keydown`, `click`). Jika idle selama 3 menit tanpa aktivitas, fungsi `signOut()` akan dipanggil secara otomatis.
 2. **Format Data `langkah` pada Tutorial**:
-   - Kolom `langkah` pada MySQL menyimpan payload JSON:
+   - Kolom `langkah` pada tabel Supabase `tutorial_list` menyimpan payload JSON:
      ```json
      {
        "deskripsi": "Langkah pemecahan masalah...",
@@ -160,6 +170,7 @@ testing/
 1. **Pembaruan Dokumen GEMINI.md**:
    - Setiap kali membuat file baru, memindahkan, atau menghapus berkas, AI **wajib langsung memperbarui** `GEMINI.md` ini agar peta basis data pengetahuan selalu akurat.
 2. **Penyimpanan Berkas Upload**:
-   - Semua berkas unggahan screenshot disimpan di direktori `public/uploads/` dan disajikan secara publik dengan path relatif `/uploads/<filename>`.
+   - Screenshot baru diunggah ke bucket publik Supabase Storage (default `tutorial-images`); atur bucket yang sama pada `SUPABASE_STORAGE_BUCKET` bila namanya berbeda.
+   - Gambar lama yang sudah berada di `public/uploads/` tetap menjadi aset statis legacy.
 3. **Bahasa Komunikasi**:
    - Seluruh penjelasan, respons, dan komunikasi kepada pengguna **wajib selalu menggunakan Bahasa Indonesia**.

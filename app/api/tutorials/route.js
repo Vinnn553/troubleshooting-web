@@ -1,81 +1,100 @@
-import { supabase } from "@/lib/supabase";
 import { NextResponse } from "next/server";
-import path from "path";
-import fs from "fs/promises";
+import { isAuthenticatedRequest } from "@/lib/api-auth";
+import { getServiceSupabase } from "@/lib/supabase";
+import {
+  deleteTutorialImage,
+  isSupportedImage,
+  MAX_TUTORIAL_IMAGE_SIZE,
+  uploadTutorialImage,
+} from "@/lib/tutorial-images";
 
-
-// GET: Ambil semua data tutorial dari database
-export async function GET() {
+export async function GET(request) {
   try {
-    const { data: rows, error } = await supabase.from('tutorial_list').select('*').order('id', { ascending: false })
-    // const [rows] = await supabase.from("SELECT * FROM `tutorial-list` ORDER BY id DESC");
-    return NextResponse.json(rows || []);
+    if (!(await isAuthenticatedRequest(request))) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { data, error } = await getServiceSupabase()
+      .from("tutorial_list")
+      .select("*")
+      .order("id", { ascending: false });
+
+    if (error) throw error;
+    return NextResponse.json(data);
   } catch (error) {
     console.error("Error fetching tutorials:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "Gagal mengambil tutorial." },
+      { status: 500 }
+    );
   }
 }
 
-// POST: Tambah tutorial baru dengan upload screenshot & terminal command
 export async function POST(request) {
+  let uploadedImageUrl = "";
+  let saved = false;
+
   try {
+    if (!(await isAuthenticatedRequest(request))) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const formData = await request.formData();
-    const title = formData.get("title");
-    const kategori = formData.get("kategori");
-    const level = formData.get("level");
-    const deskripsi = formData.get("deskripsi") || "";
-    const command = formData.get("command") || "";
-    let imageUrl = formData.get("imageUrl") || "";
+    const title = String(formData.get("title") ?? "").trim();
+    const kategori = String(formData.get("kategori") ?? "").trim();
+    const level = String(formData.get("level") ?? "").trim();
+    const deskripsi = String(formData.get("deskripsi") ?? "").trim();
+    const command = String(formData.get("command") ?? "").trim();
+    let imageUrl = String(formData.get("imageUrl") ?? "").trim();
 
     if (!title || !kategori || !level) {
       return NextResponse.json(
-        { error: "Judul, kategori, dan level wajib diisi" },
+        { error: "Judul, kategori, dan level wajib diisi." },
         { status: 400 }
       );
     }
 
-    // Handle upload file screenshot (jika ada file yang diunggah)
     const file = formData.get("image");
-    if (file && typeof file === "object" && file.size > 0 && typeof file.arrayBuffer === "function") {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-
-      const uploadDir = path.join(process.cwd(), "public", "uploads");
-      await fs.mkdir(uploadDir, { recursive: true });
-
-      const extension = path.extname(file.name) || ".png";
-      const cleanFileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}${extension}`;
-      const filePath = path.join(uploadDir, cleanFileName);
-
-      await fs.writeFile(filePath, buffer);
-      imageUrl = `/uploads/${cleanFileName}`;
+    if (file && typeof file === "object" && file.size > 0) {
+      if (file.size > MAX_TUTORIAL_IMAGE_SIZE) {
+        return NextResponse.json(
+          { error: "Ukuran gambar maksimal 5 MB." },
+          { status: 413 }
+        );
+      }
+      if (!isSupportedImage(file)) {
+        return NextResponse.json(
+          { error: "Format gambar harus JPEG, PNG, WebP, atau GIF." },
+          { status: 415 }
+        );
+      }
+      imageUrl = await uploadTutorialImage(file);
+      uploadedImageUrl = imageUrl;
     }
 
-    // Simpan langkah sebagai data terstruktur (JSON)
-    const langkahData = JSON.stringify({
-      deskripsi: String(deskripsi).trim(),
-      command: String(command).trim(),
-      imageUrl: String(imageUrl).trim(),
-    });
+    const langkah = JSON.stringify({ deskripsi, command, imageUrl });
+    const { data, error } = await getServiceSupabase()
+      .from("tutorial_list")
+      .insert([{ title, kategori, level, langkah, suka: 0, tidak_suka: 0 }])
+      .select("*")
+      .single();
 
-    const { data: result, error } = await supabase.from('tutorial_list')
-                            .insert([{ title: title, kategori: kategori, level: level, langkah: langkahData, suka: 0, tidak_suka: 0 }]);
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        id: result.insertId,
-        title,
-        kategori,
-        level,
-        langkah: langkahData,
-        suka: 0,
-        tidak_suka: 0,
-      },
-    });
+    if (error) throw error;
+    saved = true;
+    return NextResponse.json({ success: true, data }, { status: 201 });
   } catch (error) {
+    if (uploadedImageUrl && !saved) {
+      try {
+        await deleteTutorialImage(uploadedImageUrl);
+      } catch (cleanupError) {
+        console.error("Gambar unggahan yang gagal disimpan tidak dapat dibersihkan:", cleanupError);
+      }
+    }
+
     console.error("Error saving tutorial:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "Gagal menyimpan tutorial." },
+      { status: 500 }
+    );
   }
 }
-
