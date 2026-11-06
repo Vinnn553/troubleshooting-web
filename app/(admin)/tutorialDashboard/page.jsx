@@ -13,9 +13,14 @@ import {
   Eye, 
   UploadCloud, 
   Loader2,
-  AlertCircle
+  AlertCircle,
+  ChevronUp,
+  ChevronDown
 } from 'lucide-react';
 import Modal from '@/app/components/Modal';
+import { parseTutorialContent } from '@/lib/tutorial-content';
+
+const createEmptyStep = () => ({ title: '', description: '', command: '' });
 
 export default function TutorialDashboardPage() {
   const [tutorials, setTutorials] = useState([]);
@@ -36,8 +41,7 @@ export default function TutorialDashboardPage() {
     title: '',
     kategori: 'Sistem Operasi',
     level: 'Pemula',
-    deskripsi: '',
-    command: '',
+    steps: [createEmptyStep()],
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
@@ -53,25 +57,6 @@ export default function TutorialDashboardPage() {
 
   // Level sesuai ENUM MySQL
   const levelList = ['Pemula', 'Menengah', 'Mahir'];
-
-  // Helper membedah data langkah (JSON)
-  const parseLangkahHelper = (langkahRaw) => {
-    if (!langkahRaw) return { deskripsi: '', command: '', imageUrl: '' };
-    try {
-      const parsed = JSON.parse(langkahRaw);
-      return {
-        deskripsi: parsed.deskripsi || parsed.penjelasan || '',
-        command: parsed.command || parsed.perintah || '',
-        imageUrl: parsed.imageUrl || parsed.gambar || '',
-      };
-    } catch (_e) {
-      return {
-        deskripsi: String(langkahRaw || ''),
-        command: '',
-        imageUrl: '',
-      };
-    }
-  };
 
   // Ambil data tutorial melalui API
   const refreshTutorials = async () => {
@@ -143,8 +128,7 @@ export default function TutorialDashboardPage() {
       title: '',
       kategori: 'Sistem Operasi',
       level: 'Pemula',
-      deskripsi: '',
-      command: '',
+      steps: [createEmptyStep()],
     });
     setImageFile(null);
     if (imagePreview) URL.revokeObjectURL(imagePreview);
@@ -167,13 +151,12 @@ export default function TutorialDashboardPage() {
     setModalMode('edit');
     setEditingId(tutorial.id);
 
-    const parsedLangkah = parseLangkahHelper(tutorial.langkah);
+    const parsedLangkah = parseTutorialContent(tutorial.langkah);
     setFormData({
       title: tutorial.title || '',
       kategori: tutorial.kategori || 'Sistem Operasi',
       level: tutorial.level || 'Pemula',
-      deskripsi: parsedLangkah.deskripsi || '',
-      command: parsedLangkah.command || '',
+      steps: parsedLangkah.steps,
     });
     setExistingImageUrl(parsedLangkah.imageUrl || '');
     setIsFormModalOpen(true);
@@ -195,8 +178,7 @@ export default function TutorialDashboardPage() {
       bodyFormData.append('title', formData.title.trim());
       bodyFormData.append('kategori', formData.kategori);
       bodyFormData.append('level', formData.level);
-      bodyFormData.append('deskripsi', formData.deskripsi.trim());
-      bodyFormData.append('command', formData.command.trim());
+      bodyFormData.append('steps', JSON.stringify(formData.steps));
 
       // Jika ada file gambar baru yang dipilih
       if (imageFile) {
@@ -251,12 +233,32 @@ export default function TutorialDashboardPage() {
 
   // Helper memeriksa kelengkapan konten untuk badge di tabel
   const getLangkahOverview = (langkahRaw) => {
-    const parsed = parseLangkahHelper(langkahRaw);
+    const parsed = parseTutorialContent(langkahRaw);
     return {
       hasImage: Boolean(parsed.imageUrl),
-      hasCommand: Boolean(parsed.command),
+      hasCommand: parsed.steps.some((step) => Boolean(step.command)),
       text: parsed.deskripsi || '',
     };
+  };
+
+  const updateStep = (index, field, value) => {
+    setFormData((current) => ({
+      ...current,
+      steps: current.steps.map((step, stepIndex) =>
+        stepIndex === index ? { ...step, [field]: value } : step
+      ),
+    }));
+  };
+
+  const moveStep = (index, direction) => {
+    setFormData((current) => {
+      const targetIndex = index + direction;
+      if (targetIndex < 0 || targetIndex >= current.steps.length) return current;
+
+      const steps = [...current.steps];
+      [steps[index], steps[targetIndex]] = [steps[targetIndex], steps[index]];
+      return { ...current, steps };
+    });
   };
 
   return (
@@ -313,11 +315,13 @@ export default function TutorialDashboardPage() {
           <table className="w-full text-left text-sm text-slate-600">
             <thead className="bg-slate-50 text-slate-700 border-b border-slate-200 font-semibold uppercase text-xs tracking-wider">
               <tr>
-                <th className="px-6 py-4">ID</th>
+                <th className="px-6 py-4">No.</th>
                 <th className="px-6 py-4">Judul Tutorial</th>
                 <th className="px-6 py-4">Kategori</th>
                 <th className="px-6 py-4">Level</th>
                 <th className="px-6 py-4">Fitur Solusi</th>
+                <th className="px-6 py-4">Suka</th>
+                <th className="px-6 py-4">Tidak Suka</th>
                 <th className="px-6 py-4 text-center">Aksi</th>
               </tr>
             </thead>
@@ -332,11 +336,11 @@ export default function TutorialDashboardPage() {
                   </td>
                 </tr>
               ) : filteredTutorials.length > 0 ? (
-                filteredTutorials.map((item) => {
+                filteredTutorials.map((item, index) => {
                   const overview = getLangkahOverview(item.langkah);
                   return (
                     <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="px-6 py-4 font-mono text-xs text-slate-400">#{item.id}</td>
+                      <td className="px-6 py-4 font-mono text-xs text-slate-400">{index + 1}</td>
                       <td className="px-6 py-4 font-semibold text-slate-900 max-w-xs truncate">
                         {item.title}
                       </td>
@@ -381,6 +385,8 @@ export default function TutorialDashboardPage() {
                           )}
                         </div>
                       </td>
+                      <td className="px-6 py-4 font-mono text-xs text-slate-400">{item.suka}</td>
+                      <td className="px-6 py-4 font-mono text-xs text-slate-400">{item.tidak_suka}</td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-center gap-1.5">
                           {/* Tombol Preview (Lihat Tampilan Modal) */}
@@ -518,19 +524,101 @@ export default function TutorialDashboardPage() {
                 </div>
               </div>
 
-              {/* Penjelasan / Deskripsi Langkah */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                  Penjelasan & Langkah Solusi
-                </label>
-                <textarea
-                  rows={4}
-                  placeholder="Tuliskan penjelasan langkah-langkah penanganan masalah secara detail di sini..."
-                  value={formData.deskripsi}
-                  onChange={(e) => setFormData({ ...formData, deskripsi: e.target.value })}
-                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent leading-relaxed"
-                />
-              </div>
+              {/* Langkah Solusi */}
+              <section className="space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-700 uppercase">Langkah Solusi</h4>
+                    <p className="text-xs text-slate-500 mt-1">Pisahkan solusi menjadi beberapa langkah dan tulis satu instruksi per baris. Perintah CMD dapat ditambahkan pada langkah terkait.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFormData((current) => ({ ...current, steps: [...current.steps, createEmptyStep()] }))}
+                    className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-sm font-semibold"
+                  >
+                    <Plus size={16} /> Tambah Langkah
+                  </button>
+                </div>
+
+                {formData.steps.map((step, index) => (
+                  <div key={index} className="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-sm font-bold text-slate-800">Langkah {index + 1}</span>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => moveStep(index, -1)}
+                          disabled={index === 0}
+                          aria-label={`Pindahkan langkah ${index + 1} ke atas`}
+                          className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          <ChevronUp size={17} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => moveStep(index, 1)}
+                          disabled={index === formData.steps.length - 1}
+                          aria-label={`Pindahkan langkah ${index + 1} ke bawah`}
+                          className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          <ChevronDown size={17} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setFormData((current) => ({
+                            ...current,
+                            steps: current.steps.length > 1
+                              ? current.steps.filter((_, stepIndex) => stepIndex !== index)
+                              : [createEmptyStep()],
+                          }))}
+                          aria-label={`Hapus langkah ${index + 1}`}
+                          className="p-1.5 rounded-md text-rose-500 hover:bg-rose-50"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+
+                    <input
+                      type="text"
+                      value={step.title}
+                      onChange={(e) => updateStep(index, 'title', e.target.value)}
+                      placeholder={`Judul, contoh: Forget Wi-Fi`}
+                      className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                    <textarea
+                      rows={4}
+                      value={step.description}
+                      onChange={(e) => updateStep(index, 'description', e.target.value)}
+                      placeholder="Tulis instruksi langkah ini. Setiap baris baru akan dipertahankan di modal."
+                      className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 leading-relaxed"
+                    />
+                    <div className="bg-slate-900 p-3 rounded-lg text-slate-100">
+                      <label className="block text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">
+                        <Terminal size={14} className="inline mr-1" /> Perintah CMD (Opsional)
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={step.command}
+                        onChange={(e) => updateStep(index, 'command', e.target.value)}
+                        placeholder="Contoh: ipconfig /flushdns"
+                        className="w-full px-3 py-2 bg-black border border-slate-700 rounded-lg text-emerald-300 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                      {step.command.trim() && (
+                        <div className="mt-2 p-3 bg-black/80 rounded-lg border border-slate-800 text-xs font-mono">
+                          <div className="text-slate-500 text-[10px] mb-1">Preview Command Prompt:</div>
+                          {step.command.split('\n').map((line, lineIndex) => (
+                            <div key={lineIndex} className="flex gap-2 text-slate-200">
+                              <span className="text-emerald-400 select-none">C:\Windows\System32&gt;</span>
+                              <span className="text-white font-semibold">{line}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </section>
 
               {/* Upload Screenshot / Foto */}
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
@@ -600,41 +688,6 @@ export default function TutorialDashboardPage() {
                 )}
               </div>
 
-              {/* Perintah Terminal / Command Prompt (Opsional) */}
-              <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 text-slate-100">
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <Terminal size={15} /> Perintah Terminal / Command Prompt (Opsional)
-                  </label>
-                  <span className="text-[11px] text-slate-400">Akan tampil dengan background hitam</span>
-                </div>
-
-                <p className="text-xs text-slate-400 mb-2">
-                  Masukkan baris perintah yang perlu diketik user di CMD / Terminal. Jika lebih dari 1 baris, tekan Enter.
-                </p>
-
-                <textarea
-                  rows={3}
-                  placeholder={`Contoh:\nsfc /scannow\nDISM.exe /Online /Cleanup-image /Restorehealth`}
-                  value={formData.command}
-                  onChange={(e) => setFormData({ ...formData, command: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-black border border-slate-700 rounded-lg text-emerald-300 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 leading-relaxed placeholder:text-slate-600"
-                />
-
-                {/* Live Terminal Preview */}
-                {formData.command.trim() && (
-                  <div className="mt-3 p-3 bg-black/80 rounded-lg border border-slate-800 text-xs font-mono">
-                    <div className="text-slate-500 text-[10px] mb-1 select-none">Preview Tampilan Command Prompt:</div>
-                    {formData.command.split('\n').map((line, i) => (
-                      <div key={i} className="flex gap-2 text-slate-200">
-                        <span className="text-emerald-400 select-none">C:\Windows\System32&gt;</span>
-                        <span className="text-white font-semibold">{line}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
               {/* Modal Footer */}
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
                 <button
@@ -662,11 +715,13 @@ export default function TutorialDashboardPage() {
       )}
 
       {/* MODAL PREVIEW DETAIL TUTORIAL */}
-      <Modal
-        isOpen={Boolean(previewTutorial)}
-        tutorial={previewTutorial}
-        onClose={() => setPreviewTutorial(null)}
-      />
+      {previewTutorial && (
+        <Modal
+          isOpen
+          tutorial={previewTutorial}
+          onClose={() => setPreviewTutorial(null)}
+        />
+      )}
     </div>
   );
 }

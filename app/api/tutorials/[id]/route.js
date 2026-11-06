@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { isAuthenticatedRequest } from "@/lib/api-auth";
 import { getServiceSupabase } from "@/lib/supabase";
+import { parseSubmittedSteps } from "@/lib/tutorial-content";
 import {
   deleteTutorialImage,
   isSupportedImage,
@@ -72,9 +73,14 @@ export async function PUT(request, { params }) {
     const title = String(formData.get("title") ?? "").trim();
     const kategori = String(formData.get("kategori") ?? "").trim();
     const level = String(formData.get("level") ?? "").trim();
-    const deskripsi = String(formData.get("deskripsi") ?? "").trim();
-    const command = String(formData.get("command") ?? "").trim();
     let imageUrl = String(formData.get("imageUrl") ?? "").trim();
+    let steps;
+
+    try {
+      steps = parseSubmittedSteps(formData);
+    } catch (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
 
     if (!title || !kategori || !level) {
       return NextResponse.json(
@@ -112,7 +118,9 @@ export async function PUT(request, { params }) {
       uploadedImageUrl = imageUrl;
     }
 
-    const langkah = JSON.stringify({ deskripsi, command, imageUrl });
+    const deskripsi = steps.map((step) => step.description).filter(Boolean).join("\n\n");
+    const command = steps.map((step) => step.command).filter(Boolean).join("\n");
+    const langkah = JSON.stringify({ steps, deskripsi, command, imageUrl });
     const { data, error } = await getServiceSupabase()
       .from("tutorial_list")
       .update({ title, kategori, level, langkah })

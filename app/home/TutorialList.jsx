@@ -41,7 +41,13 @@ export default function TutorialList({ initialTutorials = []}) {
                 </div>
             </section>
 
-            <Modal isOpen={Boolean(selectedTutorial)} tutorial={selectedTutorial} onClose={() => setSelectedTutorial(null)}/>
+            {selectedTutorial && (
+                <Modal
+                    isOpen
+                    tutorial={selectedTutorial}
+                    onClose={() => setSelectedTutorial(null)}
+                />
+            )}
         </div>
     )
 }

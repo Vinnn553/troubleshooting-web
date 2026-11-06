@@ -1,33 +1,9 @@
 // app/components/Modal.jsx
 'use client';
 import { useState } from "react";
-import { Copy, Check, Terminal, ExternalLink } from "lucide-react";
+import { Copy, Check, Terminal, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
-
-// Helper untuk memparsing data langkah (JSON atau string biasa)
-function parseLangkah(rawLangkah) {
-  if (!rawLangkah) return { deskripsi: "", command: "", imageUrl: "" };
-  if (typeof rawLangkah === "object") return rawLangkah;
-
-  try {
-    const parsed = JSON.parse(rawLangkah);
-    if (typeof parsed === "object" && parsed !== null) {
-      return {
-        deskripsi: parsed.deskripsi || parsed.penjelasan || "",
-        command: parsed.command || parsed.perintah || "",
-        imageUrl: parsed.imageUrl || parsed.gambar || "",
-      };
-    }
-  } catch {
-    // String biasa (data legacy)
-  }
-
-  return {
-    deskripsi: String(rawLangkah),
-    command: "",
-    imageUrl: "",
-  };
-}
+import { parseTutorialContent } from "@/lib/tutorial-content";
 
 // Komponen Terminal Command Prompt dengan background hitam pekat
 function TerminalCommandBox({ command }) {
@@ -84,7 +60,7 @@ function TerminalCommandBox({ command }) {
       <div className="p-4 bg-black text-slate-100 font-mono text-xs sm:text-sm overflow-x-auto leading-relaxed">
         <div className="text-slate-500 text-xs mb-1 select-none">Microsoft Windows [Version 10.0.19045]</div>
         <div className="text-slate-500 text-xs mb-3 select-none">(c) Microsoft Corporation. All rights reserved.</div>
-        
+
         <div className="space-y-1.5">
           {lines.map((line, idx) => (
             <div key={idx} className="flex items-start gap-2">
@@ -99,9 +75,68 @@ function TerminalCommandBox({ command }) {
 }
 
 export default function Modal({ isOpen, onClose, tutorial }) {
+  const [stepSelection, setStepSelection] = useState({ tutorialId: null, index: 0 });
+  const [feedbackCounts, setFeedbackCounts] = useState(null);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+
+  const counts =
+    feedbackCounts?.tutorialId === tutorial?.id
+      ? feedbackCounts
+      : {
+        tutorialId: tutorial?.id,
+        suka: Number(tutorial?.suka ?? 0),
+        tidak_suka: Number(tutorial?.tidak_suka ?? 0),
+      };
+
+  async function submitFeedback(type) {
+    if (feedbackLoading || !tutorial?.id) return;
+
+    setFeedbackLoading(true);
+    setFeedbackMessage("");
+
+    try {
+      const response = await fetch(`/api/tutorials/${tutorial.id}/feedback`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Feedback gagal disimpan.");
+      }
+
+      setFeedbackCounts({
+        tutorialId: tutorial.id,
+        suka: result.suka,
+        tidak_suka: result.tidak_suka,
+      });
+      setFeedbackMessage("Terima kasih atas feedback Anda.");
+    } catch (error) {
+      setFeedbackMessage(error.message || "Gagal menyimpan feedback.");
+    } finally {
+      setFeedbackLoading(false);
+    }
+  }
+
   if (!isOpen || !tutorial) return null;
 
-  const content = parseLangkah(tutorial.langkah);
+  const content = parseTutorialContent(tutorial.langkah);
+  const activeStepIndex =
+    stepSelection.tutorialId === tutorial.id ? stepSelection.index : 0;
+  const updateActiveStepIndex = (updateIndex) => {
+    setStepSelection((selection) => {
+      const currentIndex =
+        selection.tutorialId === tutorial.id ? selection.index : 0;
+      const index =
+        typeof updateIndex === "function" ? updateIndex(currentIndex) : updateIndex;
+      return { tutorialId: tutorial.id, index };
+    });
+  };
+  const activeStep = content.steps[activeStepIndex] || content.steps[0];
+  const hasMultipleSteps = content.steps.length > 1;
 
   return (
     // Backdrop overlay
@@ -140,26 +175,87 @@ export default function Modal({ isOpen, onClose, tutorial }) {
         </div>
 
         {/* Konten Langkah Solusi (Scrollable) */}
-        <div className="p-6 overflow-y-auto space-y-5">
-          {/* Penjelasan / Deskripsi */}
-          <div>
-            <h3 className="font-semibold text-gray-800 text-base mb-2">Penjelasan & Langkah Perbaikan:</h3>
-            <div className="text-gray-700 text-sm leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-200 whitespace-pre-wrap">
-              {content.deskripsi || "Tidak ada rincian penjelasan tambahan."}
+        <div className="p-6 overflow-y-auto space-y-5 flex-1">
+          <section aria-live="polite">
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-1">
+                  Langkah {activeStepIndex + 1} dari {content.steps.length}
+                </p>
+                <h3 className="font-semibold text-gray-800 text-lg">
+                  {activeStep.title}
+                </h3>
+              </div>
+              {hasMultipleSteps && (
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => updateActiveStepIndex((index) => Math.max(0, index - 1))}
+                    disabled={activeStepIndex === 0}
+                    aria-label="Langkah sebelumnya"
+                    className="p-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateActiveStepIndex((index) => Math.min(content.steps.length - 1, index + 1))}
+                    disabled={activeStepIndex === content.steps.length - 1}
+                    aria-label="Langkah berikutnya"
+                    className="p-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+              )}
             </div>
-          </div>
+
+            <div className="text-gray-700 text-sm leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-200 min-h-24">
+              {activeStep.description ? (
+                <ul className="list-disc list-inside space-y-2">
+                  {activeStep.description.split("\n").map((instruction, index) => (
+                    instruction.trim() && <li key={index}>{instruction.trim()}</li>
+                  ))}
+                </ul>
+              ) : (
+                "Tidak ada rincian penjelasan tambahan."
+              )}
+            </div>
+          </section>
+
+          {hasMultipleSteps && (
+            <div className="flex flex-wrap gap-2" aria-label="Pilih langkah">
+              {content.steps.map((step, index) => (
+                <button
+                  key={`${step.title}-${index}`}
+                  type="button"
+                  onClick={() => updateActiveStepIndex(index)}
+                  aria-current={activeStepIndex === index ? "step" : undefined}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${activeStepIndex === index
+                    ? "bg-indigo-600 text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                >
+                  {index + 1}. {step.title}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Perintah Terminal / Command Prompt (Background Hitam) */}
+          {activeStep.command && (
+            <div>
+              <h3 className="font-semibold text-gray-800 text-base mb-1">Perintah Terminal / Command Prompt:</h3>
+              <TerminalCommandBox command={activeStep.command} />
+            </div>
+          )}
 
           {/* Screenshot Foto (Jika Ada) */}
           {content.imageUrl && (
             <div>
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-semibold text-gray-800 text-base">Screenshot / Panduan Visual:</h3>
-                <a
-                  href={content.imageUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-xs text-indigo-600 hover:underline flex items-center gap-1"
-                >
+                <a href={content.imageUrl} target="_blank" rel="noreferrer" className="text-xs text-indigo-600 hover:underline flex items-center gap-1">
                   Buka Gambar Penuh <ExternalLink size={12} />
                 </a>
               </div>
@@ -175,23 +271,37 @@ export default function Modal({ isOpen, onClose, tutorial }) {
               </div>
             </div>
           )}
-
-          {/* Perintah Terminal / Command Prompt (Background Hitam) */}
-          {content.command && (
-            <div>
-              <h3 className="font-semibold text-gray-800 text-base mb-1">Perintah Terminal / Command Prompt:</h3>
-              <TerminalCommandBox command={content.command} />
-            </div>
-          )}
         </div>
 
         {/* Tombol Like dan Unlike */}
         <div className="p-3">
-          <h1>Apakah tutorial ini membantu?</h1>
-          <div>
-            <button className="text-sm bg-blue-500 font-bold text-white p-1 rounded-lg">Sangat Membantu 😁</button>
-            <button>Kurang Membantu 😔</button>
+          <h2>Apakah tutorial ini membantu?</h2>
+
+          <div className="flex gap-2">
+            <button
+              type="button"
+              disabled={feedbackLoading}
+              onClick={() => submitFeedback("suka")}
+              className="text-sm bg-blue-500 font-bold text-white p-2 rounded-lg disabled:opacity-50"
+            >
+              Membantu 😁 ({counts.suka})
+            </button>
+
+            <button
+              type="button"
+              disabled={feedbackLoading}
+              onClick={() => submitFeedback("tidak_suka")}
+              className="text-sm bg-slate-600 font-bold text-white p-2 rounded-lg disabled:opacity-50"
+            >
+              Tidak Membantu 😔 ({counts.tidak_suka})
+            </button>
           </div>
+
+          {feedbackMessage && (
+            <p role="status" className="mt-2 text-sm text-slate-600">
+              {feedbackMessage}
+            </p>
+          )}
         </div>
 
         {/* Footer Modal */}

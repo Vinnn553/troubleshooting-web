@@ -70,6 +70,7 @@ testing/
 │   └── tutorial.json          # Basis data konten cadangan/mock tutorial
 │
 ├── lib/                       # Utilitas backend & koneksi server-only
+│   ├── tutorial-content.js    # Parsing langkah tutorial baru dan data legacy
 │   ├── api-auth.js            # Validasi token NextAuth untuk API admin
 │   ├── supabase.js            # Lazy Supabase public/service-role clients
 │   └── tutorial-images.js     # Upload dan penghapusan gambar Supabase Storage
@@ -123,7 +124,7 @@ testing/
     │   ├── AuthProvider.jsx   # Client wrapper SessionProvider + IdleTimerWatcher (auto logout 3 menit)
     │   ├── Header.jsx         # Navbar atas (sticky, logo Dekoruma, search input interaktif)
     │   ├── Footer.jsx         # Footer bawah (copyright dengan getYear cached via 'use cache')
-    │   ├── Modal.jsx          # Modal popup solusi (Terminal CMD background hitam & screenshot view)
+    │   ├── Modal.jsx          # Modal popup panduan solusi per langkah, Terminal CMD & screenshot
     │   ├── Search.js          # Server Action pencarian tutorial melalui Supabase
     │   └── Sidebar.jsx        # Sidebar navigasi admin panel (collapsible, route highlighting, logout)
     │
@@ -157,12 +158,20 @@ testing/
    - Kolom `langkah` pada tabel Supabase `tutorial_list` menyimpan payload JSON:
      ```json
      {
+       "steps": [
+         {
+           "title": "Langkah 1 — Contoh",
+           "description": "Instruksi langkah ini, satu instruksi per baris.",
+           "command": "ipconfig /flushdns"
+         }
+       ],
        "deskripsi": "Langkah pemecahan masalah...",
        "command": "sfc /scannow\ndism /online ...",
        "imageUrl": "/uploads/1700000000-abc.png"
      }
      ```
-   - Komponen `Modal.jsx` membaca format ini via fungsi `parseLangkah()`. Jika terdapat `command`, komponen `TerminalCommandBox` akan merendernya dengan UI menyerupai jendela Command Prompt Windows (background `#000000`, prompt `C:\Windows\System32>`, dan tombol satu klik salin perintah).
+   - Field `steps` diedit satu per satu di panel admin dan dinavigasi bertahap pada modal. Field lama `deskripsi`, `command`, dan `imageUrl` tetap didukung; deskripsi HTML legacy dengan heading `<h3>` akan diubah menjadi langkah saat dibaca.
+   - `lib/tutorial-content.js` membaca struktur `steps` baru serta mengonversi data deskripsi legacy, termasuk heading HTML, tanpa merender HTML mentah. Komponen `Modal.jsx` menampilkan langkah yang dipilih dengan navigasi; perintah tiap langkah ditampilkan oleh `TerminalCommandBox` menyerupai Command Prompt Windows (background `#000000`, prompt `C:\Windows\System32>`, tombol salin).
    - Jika terdapat `imageUrl`, gambar screenshot akan ditampilkan secara proporsional dengan opsi "Buka Gambar Penuh".
 
 ---

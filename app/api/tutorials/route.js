@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { isAuthenticatedRequest } from "@/lib/api-auth";
 import { getServiceSupabase } from "@/lib/supabase";
+import { parseSubmittedSteps } from "@/lib/tutorial-content";
 import {
   deleteTutorialImage,
   isSupportedImage,
@@ -17,7 +18,7 @@ export async function GET(request) {
     const { data, error } = await getServiceSupabase()
       .from("tutorial_list")
       .select("*")
-      .order("id", { ascending: false });
+      .order("id", { ascending: true });
 
     if (error) throw error;
     return NextResponse.json(data);
@@ -43,9 +44,14 @@ export async function POST(request) {
     const title = String(formData.get("title") ?? "").trim();
     const kategori = String(formData.get("kategori") ?? "").trim();
     const level = String(formData.get("level") ?? "").trim();
-    const deskripsi = String(formData.get("deskripsi") ?? "").trim();
-    const command = String(formData.get("command") ?? "").trim();
     let imageUrl = String(formData.get("imageUrl") ?? "").trim();
+    let steps;
+
+    try {
+      steps = parseSubmittedSteps(formData);
+    } catch (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
 
     if (!title || !kategori || !level) {
       return NextResponse.json(
@@ -72,7 +78,9 @@ export async function POST(request) {
       uploadedImageUrl = imageUrl;
     }
 
-    const langkah = JSON.stringify({ deskripsi, command, imageUrl });
+    const deskripsi = steps.map((step) => step.description).filter(Boolean).join("\n\n");
+    const command = steps.map((step) => step.command).filter(Boolean).join("\n");
+    const langkah = JSON.stringify({ steps, deskripsi, command, imageUrl });
     const { data, error } = await getServiceSupabase()
       .from("tutorial_list")
       .insert([{ title, kategori, level, langkah, suka: 0, tidak_suka: 0 }])
