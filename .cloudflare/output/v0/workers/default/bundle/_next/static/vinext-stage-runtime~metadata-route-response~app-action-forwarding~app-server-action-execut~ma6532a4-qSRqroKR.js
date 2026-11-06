@@ -1,0 +1,2 @@
+function e(e){let t=e.indexOf(`=`);if(t<=0)return null;let n=e.indexOf(`;`),r=n===-1?t:Math.min(t,n);return e.slice(0,r)}export{e as t};
+//# sourceMappingURL=vinext-stage-runtime~metadata-route-response~app-action-forwarding~app-server-action-execut~ma6532a4-qSRqroKR.js.map

@@ -1,0 +1,2 @@
+function e(e){return typeof e==`object`&&!!e&&!Array.isArray(e)}export{e as t};
+//# sourceMappingURL=vinext-stage-runtime~0virtual_vinext-response-stage~0virtual_vinext-rsc-entry~app-rsc-respo~cofmzus7-BGze3w87.js.map

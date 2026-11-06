@@ -1,0 +1,274 @@
+{
+  "_4Ef5sK_p.js": {
+    "file": "_next/static/chunks/4Ef5sK_p.js",
+    "name": "createLucideIcon",
+    "imports": [
+      "_CcyWYbDU.js",
+      "_B0PXqnjO.js"
+    ]
+  },
+  "_B0PXqnjO.js": {
+    "file": "_next/static/chunks/B0PXqnjO.js",
+    "name": "framework",
+    "imports": [
+      "_CcyWYbDU.js"
+    ]
+  },
+  "_BFswj0UA.js": {
+    "file": "_next/static/chunks/BFswj0UA.js",
+    "name": "link",
+    "imports": [
+      "_CcyWYbDU.js",
+      "_C3Eio8_s.js",
+      "_B0PXqnjO.js"
+    ],
+    "dynamicImports": [
+      "_C3Eio8_s.js"
+    ]
+  },
+  "_BLo1RiK5.js": {
+    "file": "_next/static/chunks/BLo1RiK5.js",
+    "name": "browser",
+    "imports": [
+      "_CcyWYbDU.js",
+      "_B0PXqnjO.js"
+    ]
+  },
+  "_C3Eio8_s.js": {
+    "file": "_next/static/chunks/C3Eio8_s.js",
+    "name": "vinext",
+    "imports": [
+      "_CcyWYbDU.js",
+      "_B0PXqnjO.js"
+    ],
+    "dynamicImports": [
+      "node_modules/vinext/dist/shims/internal/hybrid-client-route-owner.js",
+      "_C3Eio8_s.js"
+    ]
+  },
+  "_CGi0rU9Z.js": {
+    "file": "_next/static/chunks/CGi0rU9Z.js",
+    "name": "react",
+    "imports": [
+      "_CcyWYbDU.js",
+      "_B0PXqnjO.js"
+    ]
+  },
+  "_CQgig5TJ.js": {
+    "file": "_next/static/chunks/CQgig5TJ.js",
+    "name": "image",
+    "imports": [
+      "_CcyWYbDU.js",
+      "_C3Eio8_s.js",
+      "_B0PXqnjO.js"
+    ]
+  },
+  "_CcyWYbDU.js": {
+    "file": "_next/static/chunks/CcyWYbDU.js",
+    "name": "rolldown-runtime"
+  },
+  "_D2I20rEi.js": {
+    "file": "_next/static/chunks/D2I20rEi.js",
+    "name": "Modal",
+    "imports": [
+      "_CcyWYbDU.js",
+      "_B0PXqnjO.js",
+      "_4Ef5sK_p.js",
+      "_CQgig5TJ.js"
+    ]
+  },
+  "_DU37aOa2.js": {
+    "file": "_next/static/chunks/DU37aOa2.js",
+    "name": "book-open",
+    "imports": [
+      "_4Ef5sK_p.js"
+    ]
+  },
+  "node_modules/vinext/dist/server/app-browser-server-action-client.js": {
+    "file": "_next/static/chunks/BYWz0-d7.js",
+    "name": "app-browser-server-action-client",
+    "src": "node_modules/vinext/dist/server/app-browser-server-action-client.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_C3Eio8_s.js",
+      "_BLo1RiK5.js",
+      "virtual:vinext-app-browser-entry"
+    ]
+  },
+  "node_modules/vinext/dist/shims/internal/hybrid-client-route-owner.js": {
+    "file": "_next/static/chunks/DP0_eHoP.js",
+    "name": "hybrid-client-route-owner",
+    "src": "node_modules/vinext/dist/shims/internal/hybrid-client-route-owner.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_C3Eio8_s.js"
+    ]
+  },
+  "virtual:vinext-app-browser-entry": {
+    "file": "_next/static/chunks/pOowgXQe.js",
+    "name": "index",
+    "src": "virtual:vinext-app-browser-entry",
+    "isEntry": true,
+    "imports": [
+      "_CcyWYbDU.js",
+      "_B0PXqnjO.js",
+      "_C3Eio8_s.js",
+      "_BLo1RiK5.js"
+    ],
+    "dynamicImports": [
+      "node_modules/vinext/dist/server/app-browser-server-action-client.js",
+      "virtual:vinext-app-route-manifest"
+    ]
+  },
+  "virtual:vinext-app-route-manifest": {
+    "file": "_next/static/chunks/C4jDVMI3.js",
+    "name": "_virtual_vinext-app-route-manifest",
+    "src": "virtual:vinext-app-route-manifest",
+    "isDynamicEntry": true
+  },
+  "virtual:vinext-client-reference-chunks": {
+    "file": "_next/static/chunks/Cfy6iEX1.js",
+    "name": "_virtual_vinext-client-reference-chunks",
+    "src": "virtual:vinext-client-reference-chunks",
+    "isEntry": true,
+    "imports": [
+      "_C3Eio8_s.js"
+    ],
+    "dynamicImports": [
+      "virtual:vinext-client-reference-group-8e130e17cd",
+      "virtual:vinext-client-reference-module/15c18cfaeeff/layout-segment-context",
+      "virtual:vinext-client-reference-module/194969a73656/HeroSection",
+      "virtual:vinext-client-reference-module/25d25d161a3e/Sidebar",
+      "virtual:vinext-client-reference-module/61d6e1d77b7d/KategoriList",
+      "virtual:vinext-client-reference-module/7a58888ed7eb/UserGreeting",
+      "virtual:vinext-client-reference-module/c628f26960be/AuthProvider",
+      "virtual:vinext-client-reference-module/d675b3ba2d9b/Header",
+      "virtual:vinext-client-reference-module/ec06f8779bc5/page",
+      "virtual:vinext-client-reference-module/f829b013df72/LoginForm"
+    ]
+  },
+  "virtual:vinext-client-reference-group-8e130e17cd": {
+    "file": "_next/static/chunks/D-MIIyuv.js",
+    "name": "_virtual_vinext-client-reference-group-8e130e17cd",
+    "src": "virtual:vinext-client-reference-group-8e130e17cd",
+    "isDynamicEntry": true,
+    "imports": [
+      "_CcyWYbDU.js",
+      "_C3Eio8_s.js",
+      "_BFswj0UA.js",
+      "_B0PXqnjO.js",
+      "_D2I20rEi.js"
+    ]
+  },
+  "virtual:vinext-client-reference-module/15c18cfaeeff/layout-segment-context": {
+    "file": "_next/static/chunks/CEG4x42B.js",
+    "name": "layout-segment-context",
+    "src": "virtual:vinext-client-reference-module/15c18cfaeeff/layout-segment-context",
+    "isDynamicEntry": true,
+    "imports": [
+      "_CcyWYbDU.js",
+      "_C3Eio8_s.js",
+      "_B0PXqnjO.js"
+    ]
+  },
+  "virtual:vinext-client-reference-module/194969a73656/HeroSection": {
+    "file": "_next/static/chunks/JtR0V6JR.js",
+    "name": "HeroSection",
+    "src": "virtual:vinext-client-reference-module/194969a73656/HeroSection",
+    "isDynamicEntry": true,
+    "imports": [
+      "_CcyWYbDU.js",
+      "_C3Eio8_s.js",
+      "_CQgig5TJ.js",
+      "_B0PXqnjO.js"
+    ]
+  },
+  "virtual:vinext-client-reference-module/25d25d161a3e/Sidebar": {
+    "file": "_next/static/chunks/TKNxc-Ss.js",
+    "name": "Sidebar",
+    "src": "virtual:vinext-client-reference-module/25d25d161a3e/Sidebar",
+    "isDynamicEntry": true,
+    "imports": [
+      "_CcyWYbDU.js",
+      "_C3Eio8_s.js",
+      "_B0PXqnjO.js",
+      "_BFswj0UA.js",
+      "_4Ef5sK_p.js",
+      "_DU37aOa2.js",
+      "_CGi0rU9Z.js"
+    ]
+  },
+  "virtual:vinext-client-reference-module/61d6e1d77b7d/KategoriList": {
+    "file": "_next/static/chunks/BZX4jWKz.js",
+    "name": "KategoriList",
+    "src": "virtual:vinext-client-reference-module/61d6e1d77b7d/KategoriList",
+    "isDynamicEntry": true,
+    "imports": [
+      "_CcyWYbDU.js",
+      "_C3Eio8_s.js",
+      "_D2I20rEi.js",
+      "_B0PXqnjO.js"
+    ]
+  },
+  "virtual:vinext-client-reference-module/7a58888ed7eb/UserGreeting": {
+    "file": "_next/static/chunks/CBg2eBwV.js",
+    "name": "UserGreeting",
+    "src": "virtual:vinext-client-reference-module/7a58888ed7eb/UserGreeting",
+    "isDynamicEntry": true,
+    "imports": [
+      "_C3Eio8_s.js",
+      "_CGi0rU9Z.js",
+      "_B0PXqnjO.js"
+    ]
+  },
+  "virtual:vinext-client-reference-module/c628f26960be/AuthProvider": {
+    "file": "_next/static/chunks/DRP4lqw5.js",
+    "name": "AuthProvider",
+    "src": "virtual:vinext-client-reference-module/c628f26960be/AuthProvider",
+    "isDynamicEntry": true,
+    "imports": [
+      "_CcyWYbDU.js",
+      "_C3Eio8_s.js",
+      "_CGi0rU9Z.js",
+      "_B0PXqnjO.js"
+    ]
+  },
+  "virtual:vinext-client-reference-module/d675b3ba2d9b/Header": {
+    "file": "_next/static/chunks/BcyIeXM5.js",
+    "name": "Header",
+    "src": "virtual:vinext-client-reference-module/d675b3ba2d9b/Header",
+    "isDynamicEntry": true,
+    "imports": [
+      "_CcyWYbDU.js",
+      "_C3Eio8_s.js",
+      "_B0PXqnjO.js",
+      "_BLo1RiK5.js"
+    ]
+  },
+  "virtual:vinext-client-reference-module/ec06f8779bc5/page": {
+    "file": "_next/static/chunks/5br5HJVY.js",
+    "name": "page",
+    "src": "virtual:vinext-client-reference-module/ec06f8779bc5/page",
+    "isDynamicEntry": true,
+    "imports": [
+      "_CcyWYbDU.js",
+      "_C3Eio8_s.js",
+      "_B0PXqnjO.js",
+      "_4Ef5sK_p.js",
+      "_DU37aOa2.js",
+      "_D2I20rEi.js"
+    ]
+  },
+  "virtual:vinext-client-reference-module/f829b013df72/LoginForm": {
+    "file": "_next/static/chunks/1E98g9Ba.js",
+    "name": "LoginForm",
+    "src": "virtual:vinext-client-reference-module/f829b013df72/LoginForm",
+    "isDynamicEntry": true,
+    "imports": [
+      "_CcyWYbDU.js",
+      "_C3Eio8_s.js",
+      "_CGi0rU9Z.js",
+      "_B0PXqnjO.js"
+    ]
+  }
+}

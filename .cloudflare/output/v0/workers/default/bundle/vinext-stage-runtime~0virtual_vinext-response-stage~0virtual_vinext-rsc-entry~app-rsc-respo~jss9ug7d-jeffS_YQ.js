@@ -1,0 +1,2 @@
+var e=/[^\t\x20-\x7e]/,t=/[^\t\x20-\x7e]+/g;function n(n){return e.test(n)?n.replace(t,e=>encodeURIComponent(e)):n}function r(e){let t=[];for(let r of e)typeof r!=`string`||r.length>256?console.warn(`[vinext] Cache tags must be strings of at most 256 characters; invalid tag ignored.`):t.push(n(r));return t}export{r as n,n as t};
+//# sourceMappingURL=vinext-stage-runtime~0virtual_vinext-response-stage~0virtual_vinext-rsc-entry~app-rsc-respo~jss9ug7d-jeffS_YQ.js.map

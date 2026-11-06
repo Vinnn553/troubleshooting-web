@@ -1,0 +1,2 @@
+import{a as e}from"../../vinext-stage-runtime~0virtual_vinext-response-stage~0virtual_vinext-rsc-entry~cache-callabl~fefbmw0r-DuuM6BII.js";var t=e(()=>{throw Error(`Unexpectedly client reference export 'default' is called on server`)},`d675b3ba2d9b`,`default`);export{t};
+//# sourceMappingURL=Header-o_bmdSDj.js.map

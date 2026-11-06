@@ -1,0 +1,2 @@
+import{t as e}from"./react-BXYXGXWS.js";import{t}from"./jsx-runtime-LKYXHABd.js";var n=e(),r=t();function i(){let{data:e}=(0,n.useSession)(),t=e?.user?.username||e?.user?.name||`Admin`;return(0,r.jsx)(`span`,{className:`font-semibold text-indigo-600`,children:t})}export{i as default};
+//# sourceMappingURL=UserGreeting-BVAJ7jji.js.map

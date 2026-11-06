@@ -1,0 +1,1 @@
+import{b as e}from"./C3Eio8_s.js";import{t}from"./CGi0rU9Z.js";import{r as n}from"./B0PXqnjO.js";var r=t(),i=n();function a(){let{data:e}=(0,r.useSession)(),t=e?.user?.username||e?.user?.name||`Admin`;return(0,i.jsx)(`span`,{className:`font-semibold text-indigo-600`,children:t})}e(`7a58888ed7eb`,{get default(){return a}});
