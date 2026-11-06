@@ -4,7 +4,7 @@ export default function Loading() {
     return (
         <div>
             <Header />
-            <main className="p-6">
+            <main className="p-6 pt-20">
                 <article className="card-list animate-pulse p-3 bg-white border-gray-300 rounded-2xl w-85 h-[200px] shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between cursor-pointer">
                     <div className="card-data flex flex-col gap-3">
                         <h3 className="nama_kategori text-[.8rem] font-semibold size-5 text-[#42a6f8] bg-[#E8F5E9] rounded-full text-center p-0.5 w-30 mb-3"></h3>
