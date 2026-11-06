@@ -6,6 +6,7 @@ const withAuth =
     : nextAuthMiddleware.default;
 const authMiddleware = withAuth({
   secret: process.env.NEXTAUTH_SECRET,
+  url: process.env.NEXTAUTH_URL,
 });
 
 export default authMiddleware;
@@ -13,5 +14,5 @@ export const proxy = authMiddleware;
 
 // Tentukan rute mana saja yang ingin diproteksi
 export const config = {
-  matcher: ["/admin/:path*", "/dashboard/:path*", "/tutorialDashboard/:path*"],
+  matcher: ["/dashboard/:path*", "/tutorialDashboard/:path*"],
 };
