@@ -20,7 +20,7 @@ function IdleTimerWatcher({ timeoutMinutes = 3 }) {
 
       timerRef.current = setTimeout(() => {
         // Otomatis logout dan arahkan kembali ke login
-        signOut({ callbackUrl: "/login" });
+        signOut({ callbackUrl: `${window.location.origin}/login` });
       }, timeoutMs);
     };
 
