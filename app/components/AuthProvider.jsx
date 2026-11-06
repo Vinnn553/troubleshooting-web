@@ -19,8 +19,12 @@ function IdleTimerWatcher({ timeoutMinutes = 3 }) {
       if (timerRef.current) clearTimeout(timerRef.current);
 
       timerRef.current = setTimeout(() => {
-        // Otomatis logout dan arahkan kembali ke login
-        signOut({ callbackUrl: `${window.location.origin}/login` });
+        signOut({
+          callbackUrl: new URL("/login", window.location.origin).toString(),
+          redirect: false,
+        }).then(() => {
+          window.location.replace(new URL("/login", window.location.origin));
+        });
       }, timeoutMs);
     };
 

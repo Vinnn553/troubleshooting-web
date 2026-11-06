@@ -10,6 +10,14 @@ const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
 
+  const handleSignOut = async () => {
+    await signOut({
+      callbackUrl: new URL("/login", window.location.origin).toString(),
+      redirect: false,
+    });
+    window.location.replace(new URL("/login", window.location.origin));
+  };
+
   const menuItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Tutorial List', href: '/tutorialDashboard', icon: BookOpen },
@@ -63,7 +71,7 @@ const Sidebar = () => {
       {/* Tombol Logout di bagian paling bawah */}
       <div className="pt-4 border-t border-slate-800">
         <button
-          onClick={() => signOut({ callbackUrl: '/login' })}
+          onClick={handleSignOut}
           className="flex items-center gap-3 w-full p-3 rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
         >
           <LogOut size={20} className="shrink-0" />
