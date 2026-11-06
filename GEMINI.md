@@ -52,6 +52,7 @@ Client Supabase publik dan service-role dibuat secara lazy melalui `lib/supabase
 ```text
 testing/
 ├── .env.local                 # Variabel lingkungan lokal Supabase dan NextAuth
+├── .env.development.local     # NEXTAUTH_URL khusus Next.js dev (localhost:3000)
 ├── .dev.vars                  # Variabel runtime Wrangler lokal (diabaikan Git)
 ├── AGENTS.md                  # Aturan & instruksi agen sistem
 ├── GEMINI.md                  # Knowledge base permanen arsitektur dan peta proyek ini

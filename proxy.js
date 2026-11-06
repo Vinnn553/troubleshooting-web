@@ -7,6 +7,9 @@ const withAuth =
 const authMiddleware = withAuth({
   secret: process.env.NEXTAUTH_SECRET,
   url: process.env.NEXTAUTH_URL,
+  pages: {
+    signIn: "/login",
+  },
 });
 
 export default authMiddleware;

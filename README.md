@@ -10,7 +10,7 @@ Portal tutorial troubleshooting berbasis Next.js App Router, Supabase, dan OpenN
    npm ci
    ```
 
-2. Buat `.env.local` untuk Next.js dan isi variabel yang tercantum di bagian konfigurasi.
+2. Buat `.env.local` untuk variabel Next.js yang umum. Untuk development dengan `npm run dev`, `.env.development.local` mengatur `NEXTAUTH_URL` ke `http://localhost:3000` agar sesi dan redirect tetap berada di host lokal.
 3. Jalankan server:
 
    ```bash
@@ -35,7 +35,7 @@ Jangan gunakan `npm run build` sebagai build command CI: perintah itu hanya menj
 
 1. Buat bucket R2 bernama `web-troubleshoot-nextjs-open-next-cache` (atau ubah `bucket_name` di `wrangler.jsonc`).
 2. Siapkan Worker dengan nama `troubleshooting-web`, sesuai nilai `name` dan self-reference service di `wrangler.jsonc`.
-3. Untuk `npm run preview:worker`, buat `.dev.vars` di root proyek dengan variabel yang sama. `.dev.vars` dipakai Wrangler saat Worker lokal berjalan; `.env.local` dipakai Next.js saat development dan build. Keduanya tidak boleh di-commit.
+3. Untuk `npm run preview:worker`, buat `.dev.vars` di root proyek dan atur `NEXTAUTH_URL` ke `http://localhost:8787` (atau origin/port yang ditampilkan Wrangler). `.dev.vars` dipakai Worker lokal, sedangkan `.env.local` dipakai Next.js saat build. Keduanya tidak boleh di-commit.
 4. Tambahkan variabel dan secrets di Cloudflare Worker Settings → Variables and Secrets. Variabel `NEXT_PUBLIC_*` harus tersedia di environment build Cloudflare karena nilainya dimasukkan ke bundle browser.
 5. Pastikan project Supabase memiliki bucket Storage `tutorial-images` yang dapat dibaca publik, dan kebijakan RLS tabel `tutorial_list` mengizinkan pembacaan tutorial publik.
 6. Uji sebelum deploy:
@@ -55,7 +55,7 @@ Jangan gunakan konfigurasi build Cloudflare Pages seperti `npx next build` dan d
 
 ### Variabel dan secrets
 
-Untuk Next.js dev/build lokal, simpan nilai di `.env.local`. Untuk preview Worker lokal, isi `.dev.vars` dengan nama dan nilai yang sama. Untuk production, atur di Cloudflare Worker Settings → Variables and Secrets.
+Simpan variabel umum untuk Next.js di `.env.local`, lalu atur URL sesuai runtime: development Next.js menggunakan `.env.development.local` dengan `http://localhost:3000`; preview Worker lokal menggunakan `.dev.vars` dengan origin/port Wrangler; production menggunakan Cloudflare Worker Settings → Variables and Secrets dengan URL Worker publik. Jangan gunakan URL Worker production untuk `npm run dev`, atau URL localhost untuk production.
 
 | Nama | Jenis | Kegunaan |
 | --- | --- | --- |
@@ -64,6 +64,6 @@ Untuk Next.js dev/build lokal, simpan nilai di `.env.local`. Untuk preview Worke
 | `SUPABASE_SERVICE_ROLE_KEY` | **Secret** | Operasi API admin dan Storage; jangan expose ke browser |
 | `SUPABASE_STORAGE_BUCKET` | Variable (opsional) | Nama bucket gambar; default `tutorial-images` |
 | `NEXTAUTH_SECRET` | **Secret** | Penandatanganan sesi NextAuth |
-| `NEXTAUTH_URL` | Variable | URL Worker publik, misalnya `https://troubleshooting-web.<akun>.workers.dev` |
+| `NEXTAUTH_URL` | Variable | Origin aplikasi untuk runtime terkait: `http://localhost:3000` (Next.js dev), origin Wrangler (preview Worker), atau URL Worker publik (production) |
 
 Upload screenshot dibatasi hingga 5 MB dan menerima JPEG, PNG, WebP, atau GIF. Berkas baru disimpan di Supabase Storage, bukan filesystem Worker.
