@@ -33,6 +33,8 @@ Jika repository terhubung ke Cloudflare Workers Builds, gunakan:
 
 Jangan gunakan `npm run build` sebagai build command CI: perintah itu hanya menjalankan `next build` dan tidak membuat output adapter `.open-next/` yang diperlukan oleh deploy. `npm run build:worker` menjalankan build Next.js sekaligus menghasilkan bundle Worker OpenNext.
 
+Build Worker juga menghapus `.cloudflare/output` lama setelah build. Direktori itu merupakan output Cloudflare CLI yang tidak dipakai OpenNext dan membuat `wrangler deploy` menolak deployment; file `.cloudflare/state` lokal tidak dihapus. Jika deployment masih menemukan `.cloudflare/output`, bersihkan build cache Workers Builds lalu jalankan build dan deploy kembali.
+
 1. Buat bucket R2 bernama `web-troubleshoot-nextjs-open-next-cache` (atau ubah `bucket_name` di `wrangler.jsonc`).
 2. Siapkan Worker dengan nama `troubleshooting-web`, sesuai nilai `name` dan self-reference service di `wrangler.jsonc`.
 3. Untuk `npm run preview:worker`, buat `.dev.vars` di root proyek dan atur `NEXTAUTH_URL` ke `http://localhost:8787` (atau origin/port yang ditampilkan Wrangler). `.dev.vars` dipakai Worker lokal, sedangkan `.env.local` dipakai Next.js saat build. Keduanya tidak boleh di-commit.

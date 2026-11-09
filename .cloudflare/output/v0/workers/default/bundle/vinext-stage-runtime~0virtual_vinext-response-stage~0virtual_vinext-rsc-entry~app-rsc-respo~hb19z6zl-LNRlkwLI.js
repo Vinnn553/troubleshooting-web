@@ -1,2 +1,0 @@
-function e(){return`78dcbe7e6e09bc80de6321c25ff1851df66d374288db18d21db65d19194de426`}function t(e,t){if(e.length!==t.length)return!1;let n=0;for(let r=0;r<e.length;r++)n|=e.charCodeAt(r)^t.charCodeAt(r);return n===0}function n(n){return typeof n!=`string`||n.length===0?!1:t(n,e())}function r(e){return typeof e==`string`&&n(e)}export{t as n,r as t};
-//# sourceMappingURL=vinext-stage-runtime~0virtual_vinext-response-stage~0virtual_vinext-rsc-entry~app-rsc-respo~hb19z6zl-LNRlkwLI.js.map

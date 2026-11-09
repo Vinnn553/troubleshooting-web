@@ -1,1 +1,0 @@
-import{n as e,r as t,t as n}from"./_next/static/vinext-stage-runtime~index-SOeUyatk.js";var r=t??{};export{n as ResponseStoreClient,e as ResponseStoreRevalidator,r as default};

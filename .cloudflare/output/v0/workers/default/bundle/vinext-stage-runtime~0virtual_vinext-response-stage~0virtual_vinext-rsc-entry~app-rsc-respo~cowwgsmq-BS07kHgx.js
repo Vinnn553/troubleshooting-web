@@ -1,2 +1,0 @@
-import{n as e,t}from"./vinext-stage-runtime~index~0virtual_vinext-response-stage~0virtual_vinext-rsc-entry~app-rsc~eafz6iuc-BcJtA0b8.js";e();function n(){}function r(e,r){return(typeof r?.waitUntil==`function`?r:t())?.waitUntil?.(e.then(n,n)),e}var i=Symbol.for(`vinext.shareIsolatePromise`);globalThis[i]??=r;export{r as t};
-//# sourceMappingURL=vinext-stage-runtime~0virtual_vinext-response-stage~0virtual_vinext-rsc-entry~app-rsc-respo~cowwgsmq-BS07kHgx.js.map

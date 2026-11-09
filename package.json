@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build --webpack",
-    "build:worker": "opennextjs-cloudflare build",
+    "build:worker": "opennextjs-cloudflare build && npm run clean:cloudflare-output",
+    "clean:cloudflare-output": "node -e \"require('node:fs').rmSync('.cloudflare/output', { recursive: true, force: true })\"",
     "preview:worker": "opennextjs-cloudflare preview",
     "preview": "npm run build:worker && npm run preview:worker",
     "start": "next start",

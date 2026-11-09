@@ -1,2 +1,0 @@
-function e(e){return e===`/`?`/`:e.split(`/`).map(e=>{if(!e.startsWith(`:`))return e;let t=e.slice(1);return t.endsWith(`+`)?`[...${t.slice(0,-1)}]`:t.endsWith(`*`)?`[[...${t.slice(0,-1)}]]`:`[${t}]`}).join(`/`)}export{e as t};
-//# sourceMappingURL=vinext-stage-runtime~0virtual_vinext-response-stage~0virtual_vinext-rsc-entry~app-rsc-respo~dtdni8fi-CPzi45Lg.js.map

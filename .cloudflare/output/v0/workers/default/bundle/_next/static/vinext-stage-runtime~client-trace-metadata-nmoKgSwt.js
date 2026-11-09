@@ -1,2 +1,0 @@
-import{r as e}from"./rolldown-runtime-BWaJ3C7D.js";var t=e({stripClientTraceMetadataBlock:()=>i});function n(e){return`<!--vinext-client-trace-metadata:${e}:start-->`}function r(e){return`<!--vinext-client-trace-metadata:${e}:end-->`}function i(e,t){if(!t)return e;let i=n(t),a=r(t),o=e.indexOf(i);if(o===-1)return e;let s=e.indexOf(a,o+i.length);return s===-1?e:e.slice(0,o)+e.slice(s+a.length)}export{t};
-//# sourceMappingURL=vinext-stage-runtime~client-trace-metadata-nmoKgSwt.js.map

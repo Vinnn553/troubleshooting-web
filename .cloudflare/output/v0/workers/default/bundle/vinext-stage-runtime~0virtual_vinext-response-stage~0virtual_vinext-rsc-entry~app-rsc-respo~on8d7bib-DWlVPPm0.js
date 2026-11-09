@@ -1,2 +1,0 @@
-import{n as e,t}from"./vinext-stage-runtime~index~0virtual_vinext-response-stage~0virtual_vinext-rsc-entry~app-rsc~dakx6a5o-zlIsd5VO.js";e();var n=t(`vinext.workStoreScope.als`);function r(e){return n.run(!0,e)}function i(e){return n.run(!1,e)}function a(){return n.getStore()===!0}export{r as n,i as r,a as t};
-//# sourceMappingURL=vinext-stage-runtime~0virtual_vinext-response-stage~0virtual_vinext-rsc-entry~app-rsc-respo~on8d7bib-DWlVPPm0.js.map

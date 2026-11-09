@@ -1,2 +1,0 @@
-import{t as e}from"./_next/static/rolldown-runtime-BWaJ3C7D.js";var t=e((e=>{Object.defineProperty(e,"__esModule",{value:!0}),e.default=t;function t(e){let t=new URL(`http://localhost:3000/api/auth`);e&&!e.startsWith(`http`)&&(e=`https://${e}`);let n=new URL(e??t),r=(n.pathname===`/`?t.pathname:n.pathname).replace(/\/$/,``),i=`${n.origin}${r}`;return{origin:n.origin,host:n.host,path:r,base:i,toString:()=>i}}}));export{t};
-//# sourceMappingURL=vinext-stage-runtime~0virtual_vinext-rsc-entry~route~0virtual_vinext-request-stage-DgJODkZY.js.map

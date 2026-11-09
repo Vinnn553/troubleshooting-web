@@ -83,6 +83,7 @@ testing/
 ├── open-next.config.ts        # Konfigurasi OpenNext Cloudflare
 ├── wrangler.jsonc             # Konfigurasi deployment Cloudflare Worker
 ├── worker-configuration.d.ts  # Tipe binding Worker yang dibuat oleh Wrangler
+├── .cloudflare/               # State lokal Cloudflare; output CLI lama dibersihkan setelah build Worker
 ├── .wrangler/                 # Cache lokal Wrangler (diabaikan Git)
 ├── .wrangler/                 # Cache lokal Wrangler (diabaikan Git)
 │
