@@ -1,22 +1,24 @@
 import { NextResponse } from "next/server";
-import path from "path";
-import fs from "fs/promises";
-
+import { isAuthenticatedRequest } from "@/lib/api-auth";
+import { getServiceSupabase } from "@/lib/supabase";
+import { parseSubmittedSteps } from "@/lib/tutorial-content";
+import {
+  deleteTutorialImage,
+  isSupportedImage,
+  MAX_TUTORIAL_IMAGE_SIZE,
+  uploadTutorialImage,
+} from "@/lib/tutorial-images";
 
 // GET: Ambil semua data tutorial dari database
 export async function GET() {
   try {
-    const { data: rows, error } = await supabase
-      .from('tutorial_list')
-      .select('*')
-      .order('id', { ascending: false });
+    const { data, error } = await getServiceSupabase()
+      .from("tutorial_list")
+      .select("*")
+      .order("id", { ascending: false });
 
-    if (error) {
-      console.error("Error fetching tutorials:", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    return NextResponse.json(rows || []);
+    if (error) throw error;
+    return NextResponse.json(data || []);
   } catch (error) {
     console.error("Error fetching tutorials:", error);
     return NextResponse.json(
@@ -26,6 +28,7 @@ export async function GET() {
   }
 }
 
+// POST: Tambah tutorial baru
 export async function POST(request) {
   let uploadedImageUrl = "";
   let saved = false;
@@ -56,43 +59,37 @@ export async function POST(request) {
     }
 
     const file = formData.get("image");
-    if (file && typeof file === "object" && file.size > 0 && typeof file.arrayBuffer === "function") {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-
-      const uploadDir = path.join(process.cwd(), "public", "uploads");
-      await fs.mkdir(uploadDir, { recursive: true });
-
-      const extension = path.extname(file.name) || ".png";
-      const cleanFileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}${extension}`;
-      const filePath = path.join(uploadDir, cleanFileName);
-
-      await fs.writeFile(filePath, buffer);
-      imageUrl = `/uploads/${cleanFileName}`;
+    if (file && typeof file === "object" && file.size > 0) {
+      if (file.size > MAX_TUTORIAL_IMAGE_SIZE) {
+        return NextResponse.json(
+          { error: "Ukuran gambar maksimal 5 MB." },
+          { status: 413 }
+        );
+      }
+      if (!isSupportedImage(file)) {
+        return NextResponse.json(
+          { error: "Format gambar harus JPEG, PNG, WebP, atau GIF." },
+          { status: 415 }
+        );
+      }
+      imageUrl = await uploadTutorialImage(file);
+      uploadedImageUrl = imageUrl;
     }
 
-    // Simpan langkah sebagai data terstruktur (JSON)
-    const langkahData = JSON.stringify({
-      deskripsi: String(deskripsi).trim(),
-      command: String(command).trim(),
-      imageUrl: String(imageUrl).trim(),
-    });
+    const deskripsi = steps.map((step) => step.description).filter(Boolean).join("\n\n");
+    const command = steps.map((step) => step.command).filter(Boolean).join("\n");
+    const langkah = JSON.stringify({ steps, deskripsi, command, imageUrl });
 
-    const { data: result, error } = await supabase.from('tutorial_list')
-                            .insert([{ title: title, kategori: kategori, level: level, langkah: langkahData, suka: 0, tidak_suka: 0 }]);
+    const { data, error } = await getServiceSupabase()
+      .from("tutorial_list")
+      .insert([{ title, kategori, level, langkah, suka: 0, tidak_suka: 0 }])
+      .select("*")
+      .single();
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        id: inserted?.id,
-        title: title.trim(),
-        kategori,
-        level,
-        langkah: langkahData,
-        suka: 0,
-        tidak_suka: 0,
-      },
-    });
+    if (error) throw error;
+    saved = true;
+
+    return NextResponse.json({ success: true, data }, { status: 201 });
   } catch (error) {
     if (uploadedImageUrl && !saved) {
       try {

@@ -11,7 +11,6 @@ Dokumen ini adalah basis data pengetahuan permanen untuk asisten AI (Antigravity
 - **Autentikasi**: NextAuth v4 (`next-auth@^4.24.15`), `bcryptjs`, JWT strategy dengan idle timer watcher (3 menit inaktivitas).
 - **Database**: **Supabase (PostgreSQL)** menggunakan `@supabase/supabase-js` (Client SDK di `lib/supabase.js`).
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/turbopack`), Remix Icon (`remixicon`), Lucide Icons (`lucide-react`), Anime.js (`animejs` v4).
->>>>>>> development
 - **Fitur Khusus Next.js 16**:
   - Webpack digunakan untuk build Next.js (`next.config.mjs` dan npm scripts)
   - React Compiler aktif (`babel-plugin-react-compiler@1.0.0`)
@@ -60,7 +59,6 @@ testing/
 ├── proxy.js                   # Proxy/Middleware Next.js 16 (proteksi rute /dashboard, /tutorialDashboard)
 ├── next.config.mjs            # Konfigurasi Next.js (turbopack, cacheComponents, partialPrefetching)
 ├── package.json               # Daftar dependensi & npm scripts
->>>>>>> development
 ├── package-lock.json          # Dependency lockfile
 ├── wrangler.jsonc             # Konfigurasi Cloudflare Workers / Wrangler
 ├── README.md                  # Dokumentasi umum repositori
