@@ -7,8 +7,6 @@ import { Suspense } from "react";
 import Loading from "./home/Loading";
 
 export const instant = false;
-// app/page.tsx
-export const dynamic = 'force-dynamic'
 
 export default function Home() {
   return (
