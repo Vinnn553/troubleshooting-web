@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import KategoriList from "./KategoriList";
 import Header from "@/app/components/Header";
 
@@ -44,7 +44,7 @@ export default async function KategoriPage({ params }) {
         );
     }
 
-    const { data: tutorials, error } = await supabase
+    const { data: tutorials, error } = await getSupabase()
         .from('tutorial_list')
         .select('*')
         .eq('kategori', namaKategori)

@@ -1,7 +1,7 @@
 // app/components/Search.js
 'use server';
 
-import { getServiceSupabase, supabase } from "@/lib/supabase";
+import { getServiceSupabase, getSupabase } from "@/lib/supabase";
 
 const KATEGORI_OPTIONS = [
   'Sistem Operasi',
@@ -20,8 +20,9 @@ export async function searchItem(query) {
     const cleanQuery = query.replace(/[,()]/g, ' ').trim();
     if (!cleanQuery) return [];
 
-    // Prioritaskan service role client untuk memastikan bypass RLS di server, atau fallback ke client publik
-    const db = getServiceSupabase ? getServiceSupabase() : supabase;
+    const db = process.env.SUPABASE_SERVICE_ROLE_KEY
+      ? getServiceSupabase()
+      : getSupabase();
 
     // Cek apakah query cocok dengan salah satu nama ENUM kategori
     const matchedKategori = KATEGORI_OPTIONS.find((k) =>
@@ -47,12 +48,17 @@ export async function searchItem(query) {
     if (error) {
       console.error('Supabase search error:', error);
       // Fallback: coba pencarian hanya pada judul jika filter gabungan bermasalah
-      const { data: fallbackData } = await db
+      const { data: fallbackData, error: fallbackError } = await db
         .from('tutorial_list')
         .select('*')
         .ilike('title', `%${cleanQuery}%`)
         .order('id', { ascending: false })
         .limit(8);
+
+      if (fallbackError) {
+        console.error('Supabase title search fallback error:', fallbackError);
+        return [];
+      }
 
       return fallbackData || [];
     }
@@ -62,6 +68,4 @@ export async function searchItem(query) {
     console.error('Database Error in searchItem:', error);
     return [];
   }
-
-  return data;
 }

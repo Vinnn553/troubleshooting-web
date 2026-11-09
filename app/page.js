@@ -2,7 +2,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import HeroSection from "./home/HeroSection";
 import CategorySection from "./home/CategorySection";
-import TutorialList from "./home/TutorialList";
+import TutorialDB from "./home/TutorialDB";
 import { Suspense } from "react";
 import Loading from "./home/Loading";
 
@@ -15,7 +15,7 @@ export default function Home() {
       <HeroSection />
       <CategorySection />
       <Suspense fallback={<Loading />}>
-        <TutorialList initialTutorials={tutorials || []} />
+        <TutorialDB />
       </Suspense>
       <Footer />
     </div>

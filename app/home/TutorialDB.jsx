@@ -1,8 +1,8 @@
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import TutorialList from "./TutorialList";
 
 export default async function TutorialDB() {
-  const { data: tutorials, error } = await supabase
+  const { data: tutorials, error } = await getSupabase()
     .from("tutorial_list")
     .select("*")
     .order("id", { ascending: false });
