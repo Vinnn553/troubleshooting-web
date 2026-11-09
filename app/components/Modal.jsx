@@ -99,6 +99,59 @@ function TerminalCommandBox({ command }) {
 }
 
 export default function Modal({ isOpen, onClose, tutorial }) {
+  const [feedbackCounts, setFeedbackCounts] = useState(null);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [feedbackState, setFeedbackState] = useState({ tutorialId: null, message: "" });
+
+  const feedbackMessage =
+    feedbackState.tutorialId === tutorial?.id ? feedbackState.message : "";
+
+  const counts =
+    feedbackCounts?.tutorialId === tutorial?.id
+      ? feedbackCounts
+      : {
+          tutorialId: tutorial?.id,
+          suka: Number(tutorial?.suka ?? 0),
+          tidak_suka: Number(tutorial?.tidak_suka ?? 0),
+        };
+
+  async function submitFeedback(type) {
+    if (feedbackLoading || !tutorial?.id) return;
+
+    setFeedbackLoading(true);
+    setFeedbackState({ tutorialId: tutorial.id, message: "" });
+
+    try {
+      const response = await fetch(`/api/tutorials/${tutorial.id}/feedback`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type }),
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Feedback gagal disimpan.");
+      }
+
+      setFeedbackCounts({
+        tutorialId: tutorial.id,
+        suka: Number(result.suka),
+        tidak_suka: Number(result.tidak_suka),
+      });
+      setFeedbackState({
+        tutorialId: tutorial.id,
+        message: "Terima kasih atas feedback Anda.",
+      });
+    } catch (error) {
+      setFeedbackState({
+        tutorialId: tutorial.id,
+        message: error.message || "Gagal menyimpan feedback.",
+      });
+    } finally {
+      setFeedbackLoading(false);
+    }
+  }
+
   if (!isOpen || !tutorial) return null;
 
   const content = parseLangkah(tutorial.langkah);
@@ -187,11 +240,30 @@ export default function Modal({ isOpen, onClose, tutorial }) {
 
         {/* Tombol Like dan Unlike */}
         <div className="p-3">
-          <h1>Apakah tutorial ini membantu?</h1>
-          <div>
-            <button className="text-sm bg-blue-500 font-bold text-white p-1 rounded-lg">Sangat Membantu 😁</button>
-            <button>Kurang Membantu 😔</button>
+          <h2 className="font-semibold">Apakah tutorial ini membantu?</h2>
+          <div className="flex gap-2 mt-2">
+            <button
+              type="button"
+              disabled={feedbackLoading}
+              onClick={() => submitFeedback("suka")}
+              className="text-sm bg-blue-500 font-bold text-white p-2 rounded-lg disabled:opacity-50"
+            >
+              Membantu 😁 ({counts.suka})
+            </button>
+            <button
+              type="button"
+              disabled={feedbackLoading}
+              onClick={() => submitFeedback("tidak_suka")}
+              className="text-sm bg-slate-600 font-bold text-white p-2 rounded-lg disabled:opacity-50"
+            >
+              Tidak Membantu 😔 ({counts.tidak_suka})
+            </button>
           </div>
+          {feedbackMessage && (
+            <p role="status" className="mt-2 text-sm text-slate-600">
+              {feedbackMessage}
+            </p>
+          )}
         </div>
 
         {/* Footer Modal */}

@@ -3,12 +3,19 @@ import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
 
-
 // GET: Ambil semua data tutorial dari database
 export async function GET() {
   try {
-    const { data: rows, error } = await supabase.from('tutorial_list').select('*').order('id', { ascending: false })
-    // const [rows] = await supabase.from("SELECT * FROM `tutorial-list` ORDER BY id DESC");
+    const { data: rows, error } = await supabase
+      .from('tutorial_list')
+      .select('*')
+      .order('id', { ascending: false });
+
+    if (error) {
+      console.error("Error fetching tutorials:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
     return NextResponse.json(rows || []);
   } catch (error) {
     console.error("Error fetching tutorials:", error);
@@ -58,14 +65,30 @@ export async function POST(request) {
       imageUrl: String(imageUrl).trim(),
     });
 
-    const { data: result, error } = await supabase.from('tutorial_list')
-                            .insert([{ title: title, kategori: kategori, level: level, langkah: langkahData, suka: 0, tidak_suka: 0 }]);
+    const { data: insertedRows, error } = await supabase
+      .from('tutorial_list')
+      .insert([{
+        title: title.trim(),
+        kategori,
+        level,
+        langkah: langkahData,
+        suka: 0,
+        tidak_suka: 0,
+      }])
+      .select();
+
+    if (error) {
+      console.error("Error saving tutorial:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    const inserted = insertedRows?.[0];
 
     return NextResponse.json({
       success: true,
       data: {
-        id: result.insertId,
-        title,
+        id: inserted?.id,
+        title: title.trim(),
         kategori,
         level,
         langkah: langkahData,
@@ -78,4 +101,3 @@ export async function POST(request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-

@@ -7,17 +7,22 @@ import fs from "fs/promises";
 export async function GET(request, { params }) {
   try {
     const { id } = await params;
-    const {data: rows} = await supabase.from('tutorial_list').select('*').eq('id', id).limit(1).single();
-    // // const [rows] = await supabase.from(
-    // //   "SELECT * FROM `tutorial-list` WHERE id = ? LIMIT 1",
-    // //   [id]
-    // );
+    const { data: row, error } = await supabase
+      .from('tutorial_list')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
 
-    if (rows.length === 0) {
+    if (error) {
+      console.error("Error fetching tutorial detail:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    if (!row) {
       return NextResponse.json({ error: "Tutorial tidak ditemukan" }, { status: 404 });
     }
 
-    return NextResponse.json(rows || []);
+    return NextResponse.json(row);
   } catch (error) {
     console.error("Error fetching tutorial detail:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -68,13 +73,23 @@ export async function PUT(request, { params }) {
       imageUrl: String(imageUrl).trim(),
     });
 
-    const {result} = await supabase.from('tutorial_list').update({title, kategori, level, langkah: langkahData}).eq('id', id);
-    // const [result] = await supabase.from(
-    //   "UPDATE `tutorial-list` SET title = ?, kategori = ?, level = ?, langkah = ? WHERE id = ?",
-    //   [title.trim(), kategori, level, langkahData, id]
-    // );
+    const { data, error } = await supabase
+      .from('tutorial_list')
+      .update({
+        title: title.trim(),
+        kategori,
+        level,
+        langkah: langkahData,
+      })
+      .eq('id', id)
+      .select();
 
-    if (result.affectedRows === 0) {
+    if (error) {
+      console.error("Error updating tutorial:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    if (!data || data.length === 0) {
       return NextResponse.json({ error: "Tutorial tidak ditemukan" }, { status: 404 });
     }
 
@@ -93,12 +108,18 @@ export async function DELETE(request, { params }) {
   try {
     const { id } = await params;
 
-    const [result] = await supabase.from(
-      "DELETE FROM `tutorial-list` WHERE id = ?",
-      [id]
-    );
+    const { data, error } = await supabase
+      .from('tutorial_list')
+      .delete()
+      .eq('id', id)
+      .select();
 
-    if (result.affectedRows === 0) {
+    if (error) {
+      console.error("Error deleting tutorial:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    if (!data || data.length === 0) {
       return NextResponse.json({ error: "Tutorial tidak ditemukan" }, { status: 404 });
     }
 
