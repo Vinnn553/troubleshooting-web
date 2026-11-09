@@ -75,61 +75,28 @@ function TerminalCommandBox({ command }) {
 }
 
 export default function Modal({ isOpen, onClose, tutorial }) {
-<<<<<<< HEAD
-<<<<<<< HEAD
   const [stepSelection, setStepSelection] = useState({ tutorialId: null, index: 0 });
-  const [feedbackCounts, setFeedbackCounts] = useState(null);
-  const [feedbackLoading, setFeedbackLoading] = useState(false);
-  const [feedbackMessage, setFeedbackMessage] = useState("");
-=======
-=======
->>>>>>> development
   const [feedbackCounts, setFeedbackCounts] = useState(null);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [feedbackState, setFeedbackState] = useState({ tutorialId: null, message: "" });
 
   const feedbackMessage =
     feedbackState.tutorialId === tutorial?.id ? feedbackState.message : "";
-<<<<<<< HEAD
->>>>>>> development
-=======
->>>>>>> development
 
   const counts =
     feedbackCounts?.tutorialId === tutorial?.id
       ? feedbackCounts
       : {
-<<<<<<< HEAD
-<<<<<<< HEAD
-        tutorialId: tutorial?.id,
-        suka: Number(tutorial?.suka ?? 0),
-        tidak_suka: Number(tutorial?.tidak_suka ?? 0),
-      };
-=======
-=======
->>>>>>> development
           tutorialId: tutorial?.id,
           suka: Number(tutorial?.suka ?? 0),
           tidak_suka: Number(tutorial?.tidak_suka ?? 0),
         };
-<<<<<<< HEAD
->>>>>>> development
-=======
->>>>>>> development
 
   async function submitFeedback(type) {
     if (feedbackLoading || !tutorial?.id) return;
 
     setFeedbackLoading(true);
-<<<<<<< HEAD
-<<<<<<< HEAD
-    setFeedbackMessage("");
-=======
     setFeedbackState({ tutorialId: tutorial.id, message: "" });
->>>>>>> development
-=======
-    setFeedbackState({ tutorialId: tutorial.id, message: "" });
->>>>>>> development
 
     try {
       const response = await fetch(`/api/tutorials/${tutorial.id}/feedback`, {
@@ -137,13 +104,6 @@ export default function Modal({ isOpen, onClose, tutorial }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type }),
       });
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
->>>>>>> development
-=======
->>>>>>> development
       const result = await response.json();
 
       if (!response.ok) {
@@ -152,17 +112,6 @@ export default function Modal({ isOpen, onClose, tutorial }) {
 
       setFeedbackCounts({
         tutorialId: tutorial.id,
-<<<<<<< HEAD
-<<<<<<< HEAD
-        suka: result.suka,
-        tidak_suka: result.tidak_suka,
-      });
-      setFeedbackMessage("Terima kasih atas feedback Anda.");
-    } catch (error) {
-      setFeedbackMessage(error.message || "Gagal menyimpan feedback.");
-=======
-=======
->>>>>>> development
         suka: Number(result.suka),
         tidak_suka: Number(result.tidak_suka),
       });
@@ -175,10 +124,6 @@ export default function Modal({ isOpen, onClose, tutorial }) {
         tutorialId: tutorial.id,
         message: error.message || "Gagal menyimpan feedback.",
       });
-<<<<<<< HEAD
->>>>>>> development
-=======
->>>>>>> development
     } finally {
       setFeedbackLoading(false);
     }
@@ -338,19 +283,8 @@ export default function Modal({ isOpen, onClose, tutorial }) {
 
         {/* Tombol Like dan Unlike */}
         <div className="p-3">
-<<<<<<< HEAD
-<<<<<<< HEAD
-          <h2>Apakah tutorial ini membantu?</h2>
-
-          <div className="flex gap-2">
-=======
           <h2 className="font-semibold">Apakah tutorial ini membantu?</h2>
           <div className="flex gap-2 mt-2">
->>>>>>> development
-=======
-          <h2 className="font-semibold">Apakah tutorial ini membantu?</h2>
-          <div className="flex gap-2 mt-2">
->>>>>>> development
             <button
               type="button"
               disabled={feedbackLoading}
@@ -359,13 +293,6 @@ export default function Modal({ isOpen, onClose, tutorial }) {
             >
               Membantu 😁 ({counts.suka})
             </button>
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
->>>>>>> development
-=======
->>>>>>> development
             <button
               type="button"
               disabled={feedbackLoading}
@@ -375,13 +302,6 @@ export default function Modal({ isOpen, onClose, tutorial }) {
               Tidak Membantu 😔 ({counts.tidak_suka})
             </button>
           </div>
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
->>>>>>> development
-=======
->>>>>>> development
           {feedbackMessage && (
             <p role="status" className="mt-2 text-sm text-slate-600">
               {feedbackMessage}
