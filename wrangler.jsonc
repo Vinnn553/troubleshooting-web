@@ -8,5 +8,11 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application"
-  }
+  },
+  "r2_buckets": [
+    {
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "web-troubleshoot-nextjs-open-next-cache"
+    }
+  ]
 }
