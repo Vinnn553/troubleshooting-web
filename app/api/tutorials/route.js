@@ -1,29 +1,8 @@
 import { NextResponse } from "next/server";
-import { isAuthenticatedRequest } from "@/lib/api-auth";
-import { getServiceSupabase } from "@/lib/supabase";
-import { parseSubmittedSteps } from "@/lib/tutorial-content";
-import {
-  deleteTutorialImage,
-  isSupportedImage,
-  MAX_TUTORIAL_IMAGE_SIZE,
-  uploadTutorialImage,
-} from "@/lib/tutorial-images";
+import path from "path";
+import fs from "fs/promises";
 
-<<<<<<< HEAD
-export async function GET(request) {
-  try {
-    if (!(await isAuthenticatedRequest(request))) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
 
-    const { data, error } = await getServiceSupabase()
-      .from("tutorial_list")
-      .select("*")
-      .order("id", { ascending: true });
-
-    if (error) throw error;
-    return NextResponse.json(data);
-=======
 // GET: Ambil semua data tutorial dari database
 export async function GET() {
   try {
@@ -38,7 +17,6 @@ export async function GET() {
     }
 
     return NextResponse.json(rows || []);
->>>>>>> development
   } catch (error) {
     console.error("Error fetching tutorials:", error);
     return NextResponse.json(
@@ -78,55 +56,30 @@ export async function POST(request) {
     }
 
     const file = formData.get("image");
-    if (file && typeof file === "object" && file.size > 0) {
-      if (file.size > MAX_TUTORIAL_IMAGE_SIZE) {
-        return NextResponse.json(
-          { error: "Ukuran gambar maksimal 5 MB." },
-          { status: 413 }
-        );
-      }
-      if (!isSupportedImage(file)) {
-        return NextResponse.json(
-          { error: "Format gambar harus JPEG, PNG, WebP, atau GIF." },
-          { status: 415 }
-        );
-      }
-      imageUrl = await uploadTutorialImage(file);
-      uploadedImageUrl = imageUrl;
+    if (file && typeof file === "object" && file.size > 0 && typeof file.arrayBuffer === "function") {
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+
+      const uploadDir = path.join(process.cwd(), "public", "uploads");
+      await fs.mkdir(uploadDir, { recursive: true });
+
+      const extension = path.extname(file.name) || ".png";
+      const cleanFileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}${extension}`;
+      const filePath = path.join(uploadDir, cleanFileName);
+
+      await fs.writeFile(filePath, buffer);
+      imageUrl = `/uploads/${cleanFileName}`;
     }
 
-    const deskripsi = steps.map((step) => step.description).filter(Boolean).join("\n\n");
-    const command = steps.map((step) => step.command).filter(Boolean).join("\n");
-    const langkah = JSON.stringify({ steps, deskripsi, command, imageUrl });
-    const { data, error } = await getServiceSupabase()
-      .from("tutorial_list")
-      .insert([{ title, kategori, level, langkah, suka: 0, tidak_suka: 0 }])
-      .select("*")
-      .single();
+    // Simpan langkah sebagai data terstruktur (JSON)
+    const langkahData = JSON.stringify({
+      deskripsi: String(deskripsi).trim(),
+      command: String(command).trim(),
+      imageUrl: String(imageUrl).trim(),
+    });
 
-<<<<<<< HEAD
-    if (error) throw error;
-    saved = true;
-    return NextResponse.json({ success: true, data }, { status: 201 });
-=======
-    const { data: insertedRows, error } = await supabase
-      .from('tutorial_list')
-      .insert([{
-        title: title.trim(),
-        kategori,
-        level,
-        langkah: langkahData,
-        suka: 0,
-        tidak_suka: 0,
-      }])
-      .select();
-
-    if (error) {
-      console.error("Error saving tutorial:", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    const inserted = insertedRows?.[0];
+    const { data: result, error } = await supabase.from('tutorial_list')
+                            .insert([{ title: title, kategori: kategori, level: level, langkah: langkahData, suka: 0, tidak_suka: 0 }]);
 
     return NextResponse.json({
       success: true,
@@ -140,7 +93,6 @@ export async function POST(request) {
         tidak_suka: 0,
       },
     });
->>>>>>> development
   } catch (error) {
     if (uploadedImageUrl && !saved) {
       try {

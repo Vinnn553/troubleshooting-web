@@ -156,35 +156,21 @@ export async function PUT(request, { params }) {
     if (!data) {
       return NextResponse.json({ error: "Tutorial tidak ditemukan." }, { status: 404 });
     }
-    saved = true;
 
-    let warning;
-    const oldImageUrl = getImageUrl(current.langkah);
-    if (uploadedImageUrl && oldImageUrl && oldImageUrl !== uploadedImageUrl) {
-      try {
-        await deleteTutorialImage(oldImageUrl);
-      } catch (cleanupError) {
-        console.error("Gambar lama tidak dapat dihapus:", cleanupError);
-        warning = "Tutorial tersimpan, tetapi gambar lama gagal dihapus.";
-      }
-=======
-    const { data, error } = await supabase
-      .from('tutorial_list')
-      .update({
-        title: title.trim(),
-        kategori,
-        level,
-        langkah: langkahData,
-      })
-      .eq('id', id)
-      .select();
+    // Format ulang langkah sebagai payload JSON
+    const langkahData = JSON.stringify({
+      deskripsi: String(deskripsi).trim(),
+      command: String(command).trim(),
+      imageUrl: String(imageUrl).trim(),
+    });
 
-    if (error) {
-      console.error("Error updating tutorial:", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    const {result} = await supabase.from('tutorial_list').update({title, kategori, level, langkah: langkahData}).eq('id', id);
+    // const [result] = await supabase.from(
+    //   "UPDATE `tutorial-list` SET title = ?, kategori = ?, level = ?, langkah = ? WHERE id = ?",
+    //   [title.trim(), kategori, level, langkahData, id]
+    // );
 
-    if (!data || data.length === 0) {
+    if (result.affectedRows === 0) {
       return NextResponse.json({ error: "Tutorial tidak ditemukan" }, { status: 404 });
 >>>>>>> development
     }

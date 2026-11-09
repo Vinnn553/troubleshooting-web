@@ -1,5 +1,4 @@
 import { supabase } from "@/lib/supabase";
-import { Suspense } from "react";
 import KategoriList from "./KategoriList";
 import Header from "@/app/components/Header";
 
@@ -45,7 +44,8 @@ export default async function KategoriPage({ params }) {
         );
     }
 
-    const { data: tutorials, error } = await supabase.from('tutorial_list')
+    const { data: tutorials, error } = await supabase
+        .from('tutorial_list')
         .select('*')
         .eq('kategori', namaKategori)
         .order('id', { ascending: false });
@@ -78,26 +78,10 @@ export default async function KategoriPage({ params }) {
 
     return (
         <div>
-        <Header/>
-        <main className="p-6 pt-20">  
-            <Suspense fallback={
-                <article className="card-list p-3 animate-pulse bg-white border-gray-300 rounded-2xl w-85 h-[200px] shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between cursor-pointer">
-                    <div className="card-data flex flex-col">
-                        <h3 className="nama_kategori text-[.8rem] font-semibold text-[#42a6f8] bg-[#E8F5E9] rounded-full text-center p-0.5 w-30 mb-3"></h3>
-                        <h2 className="nama_masalah text-2xl font-semibold"></h2>
-                    </div>
-                    <div className="level flex gap-1.5">
-                        <span className="bg-gray-400 text-sm text-gray-800 rounded-full font-semibold p-0.5 px-1"></span>
-                    </div>
-                    <div className="flex items-center text-sm font-semibold text-[#42a6f8] gap-1 group-hover:gap-2 transition-all">
-                        <span></span>
-                        <i className="ri-arrow-right-line"></i>
-                    </div>
-                </article>
-            }>
-                <KategoriList initialKategoris={tutorials || []} />
-            </Suspense>
-        </main>
+            <Header />
+            <main className="p-6 pt-20">
+                <KategoriList initialKategoris={tutorials} />
+            </main>
         </div>
     );
 }

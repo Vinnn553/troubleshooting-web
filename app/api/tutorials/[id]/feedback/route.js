@@ -3,6 +3,7 @@ import { getServiceSupabase } from "@/lib/supabase";
 
 export async function POST(request, { params }) {
 <<<<<<< HEAD
+<<<<<<< HEAD
   const { id } = await params;
 
   if (!/^[1-9]\d*$/.test(id) || !Number.isSafeInteger(Number(id))) {
@@ -57,6 +58,8 @@ export async function POST(request, { params }) {
   return NextResponse.json(counts);
 }
 =======
+=======
+>>>>>>> development
   try {
     const { id } = await params;
     if (!/^[1-9]\d*$/.test(id) || !Number.isSafeInteger(Number(id))) {
@@ -146,4 +149,7 @@ export async function POST(request, { params }) {
     );
   }
 }
+<<<<<<< HEAD
+>>>>>>> development
+=======
 >>>>>>> development
