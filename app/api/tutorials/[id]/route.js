@@ -11,10 +11,33 @@ import {
 
 function getImageUrl(langkah) {
   try {
+<<<<<<< HEAD
     const parsed = typeof langkah === "string" ? JSON.parse(langkah) : langkah;
     return parsed?.imageUrl || parsed?.gambar || "";
   } catch {
     return "";
+=======
+    const { id } = await params;
+    const { data: row, error } = await supabase
+      .from('tutorial_list')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Error fetching tutorial detail:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    if (!row) {
+      return NextResponse.json({ error: "Tutorial tidak ditemukan" }, { status: 404 });
+    }
+
+    return NextResponse.json(row);
+  } catch (error) {
+    console.error("Error fetching tutorial detail:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+>>>>>>> development
   }
 }
 
@@ -118,6 +141,7 @@ export async function PUT(request, { params }) {
       uploadedImageUrl = imageUrl;
     }
 
+<<<<<<< HEAD
     const deskripsi = steps.map((step) => step.description).filter(Boolean).join("\n\n");
     const command = steps.map((step) => step.command).filter(Boolean).join("\n");
     const langkah = JSON.stringify({ steps, deskripsi, command, imageUrl });
@@ -143,6 +167,26 @@ export async function PUT(request, { params }) {
         console.error("Gambar lama tidak dapat dihapus:", cleanupError);
         warning = "Tutorial tersimpan, tetapi gambar lama gagal dihapus.";
       }
+=======
+    const { data, error } = await supabase
+      .from('tutorial_list')
+      .update({
+        title: title.trim(),
+        kategori,
+        level,
+        langkah: langkahData,
+      })
+      .eq('id', id)
+      .select();
+
+    if (error) {
+      console.error("Error updating tutorial:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    if (!data || data.length === 0) {
+      return NextResponse.json({ error: "Tutorial tidak ditemukan" }, { status: 404 });
+>>>>>>> development
     }
 
     return NextResponse.json({
@@ -151,12 +195,38 @@ export async function PUT(request, { params }) {
       ...(warning ? { warning } : {}),
     });
   } catch (error) {
+<<<<<<< HEAD
     if (uploadedImageUrl && !saved) {
       try {
         await deleteTutorialImage(uploadedImageUrl);
       } catch (cleanupError) {
         console.error("Gambar unggahan yang gagal disimpan tidak dapat dibersihkan:", cleanupError);
       }
+=======
+    console.error("Error updating tutorial:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+// DELETE: Hapus tutorial berdasarkan ID
+export async function DELETE(request, { params }) {
+  try {
+    const { id } = await params;
+
+    const { data, error } = await supabase
+      .from('tutorial_list')
+      .delete()
+      .eq('id', id)
+      .select();
+
+    if (error) {
+      console.error("Error deleting tutorial:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    if (!data || data.length === 0) {
+      return NextResponse.json({ error: "Tutorial tidak ditemukan" }, { status: 404 });
+>>>>>>> development
     }
 
     console.error("Error updating tutorial:", error);

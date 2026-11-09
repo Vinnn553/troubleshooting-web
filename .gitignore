@@ -18,8 +18,13 @@
 /out/
 /.open-next/
 
-# production
+# production & build
 /build
+/dist
+/.open-next/
+/.wrangler/
+/.cloudflare/
+/.vinext/
 
 # misc
 .DS_Store

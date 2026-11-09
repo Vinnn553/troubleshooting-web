@@ -9,6 +9,7 @@ import {
   uploadTutorialImage,
 } from "@/lib/tutorial-images";
 
+<<<<<<< HEAD
 export async function GET(request) {
   try {
     if (!(await isAuthenticatedRequest(request))) {
@@ -22,6 +23,22 @@ export async function GET(request) {
 
     if (error) throw error;
     return NextResponse.json(data);
+=======
+// GET: Ambil semua data tutorial dari database
+export async function GET() {
+  try {
+    const { data: rows, error } = await supabase
+      .from('tutorial_list')
+      .select('*')
+      .order('id', { ascending: false });
+
+    if (error) {
+      console.error("Error fetching tutorials:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json(rows || []);
+>>>>>>> development
   } catch (error) {
     console.error("Error fetching tutorials:", error);
     return NextResponse.json(
@@ -87,9 +104,43 @@ export async function POST(request) {
       .select("*")
       .single();
 
+<<<<<<< HEAD
     if (error) throw error;
     saved = true;
     return NextResponse.json({ success: true, data }, { status: 201 });
+=======
+    const { data: insertedRows, error } = await supabase
+      .from('tutorial_list')
+      .insert([{
+        title: title.trim(),
+        kategori,
+        level,
+        langkah: langkahData,
+        suka: 0,
+        tidak_suka: 0,
+      }])
+      .select();
+
+    if (error) {
+      console.error("Error saving tutorial:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    const inserted = insertedRows?.[0];
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        id: inserted?.id,
+        title: title.trim(),
+        kategori,
+        level,
+        langkah: langkahData,
+        suka: 0,
+        tidak_suka: 0,
+      },
+    });
+>>>>>>> development
   } catch (error) {
     if (uploadedImageUrl && !saved) {
       try {

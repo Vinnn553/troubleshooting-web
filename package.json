@@ -2,6 +2,7 @@
   "name": "troubleshooting-web",
   "version": "0.1.0",
   "private": true,
+  "description": "Web portal panduan troubleshooting & tutorial penanganan gangguan komputer dan jaringan.",
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build --webpack",

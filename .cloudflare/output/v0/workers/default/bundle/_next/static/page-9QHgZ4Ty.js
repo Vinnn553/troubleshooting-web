@@ -1,0 +1,2 @@
+import{a as e}from"../../vinext-stage-runtime~0virtual_vinext-response-stage~0virtual_vinext-rsc-entry~cache-callabl~fefbmw0r-DuuM6BII.js";import{t}from"../../vinext-stage-runtime~0virtual_vinext-response-stage~0virtual_vinext-rsc-entry~loading~page~~d33n2nf3-C54JOEnu.js";var n=e(()=>{throw Error(`Unexpectedly client reference export 'default' is called on server`)},`f829b013df72`,`default`),r=t(),i={title:`Login Admin`};function a(){return(0,r.jsx)(n,{})}export{a as default,i as metadata};
+//# sourceMappingURL=page-9QHgZ4Ty.js.map

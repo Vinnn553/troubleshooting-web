@@ -6,21 +6,7 @@
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "directory": ".open-next/assets",
-    "binding": "ASSETS"
-  },
-  "services": [
-    {
-      "binding": "WORKER_SELF_REFERENCE",
-      "service": "troubleshooting-web"
-    }
-  ],
-  "r2_buckets": [
-    {
-      "binding": "NEXT_INC_CACHE_R2_BUCKET",
-      "bucket_name": "web-troubleshoot-nextjs-open-next-cache"
-    }
-  ],
-  "images": {
-    "binding": "IMAGES"
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-app"
   }
 }

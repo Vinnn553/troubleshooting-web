@@ -1,0 +1,2 @@
+import{K as e}from"./vinext-stage-runtime~index~0virtual_vinext-response-stage~0virtual_vinext-rsc-entry~app-rsc~jzcgmubn-DD3l1oRP.js";e();function t(e){if(e.method.toUpperCase()!==`POST`)return!1;let t=e.headers.get(`content-type`);return e.headers.has(`x-rsc-action`)||e.headers.has(`next-action`)||t===`application/x-www-form-urlencoded`||t?.startsWith(`multipart/form-data`)===!0}export{t};
+//# sourceMappingURL=vinext-stage-runtime~0virtual_vinext-response-stage~0virtual_vinext-rsc-entry~metadata-rout~gvk6vh24-CuZOfwXx.js.map

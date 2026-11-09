@@ -1,22 +1,22 @@
 // app/components/Search.js
 'use server';
-import { getSupabase } from "@/lib/supabase";
+import pool, { supabase } from "@/lib/supabase";
 
 export async function searchItem(query) {
-  const normalizedQuery = typeof query === "string" ? query.trim() : "";
-  let request = getSupabase()
-    .from("tutorial_list")
-    .select("*")
-    .order("title", { ascending: true });
+  try {
+    if (!query || !query.trim()) {
+      const [rows] = await supabase.from('tutorial_list').select();
+      return rows;
+    }
 
-  if (normalizedQuery) {
-    request = request.ilike("title", `%${normalizedQuery}%`);
-  }
-
-  const { data, error } = await request;
-  if (error) {
-    console.error("Gagal mencari tutorial:", error);
-    throw new Error("Gagal melakukan pencarian.");
+    const [rows] = await supabase.from(
+      "SELECT * FROM `tutorial-list` WHERE title LIKE ? ORDER BY title ASC",
+      [`%${query.trim()}%`]
+    );
+    return rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Gagal melakukan pencarian.');
   }
 
   return data;
